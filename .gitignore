@@ -1,1 +1,3 @@
 .idea/
+wireguard-hub
+!wireguard-hub/
