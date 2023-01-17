@@ -3,12 +3,14 @@ package main
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/christophwitzko/wireguard-hub/pkg/loopback"
 	"github.com/christophwitzko/wireguard-hub/pkg/wgconn"
+	"github.com/christophwitzko/wireguard-hub/pkg/wgdebug"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"golang.zx2c4.com/wireguard/device"
@@ -76,9 +78,19 @@ func run(log *logrus.Logger, cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
+	stopDebugServer := func() {}
+	if cfg.DebugPort > 0 {
+		log.Infof("starting debug server on port %d", cfg.DebugPort)
+		stopDebugServer, err = wgdebug.StartDebugServer(log, dev, fmt.Sprintf(":%d", cfg.DebugPort))
+		if err != nil {
+			return fmt.Errorf("failed to start debug server: %w", err)
+		}
+	}
+
 	<-ctx.Done()
 	log.Println("stopping...")
 	stop()
+	stopDebugServer()
 	dev.Close()
 	log.Println("stopped")
 	return nil

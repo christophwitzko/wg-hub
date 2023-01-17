@@ -82,6 +82,7 @@ func setFlags(cmd *cobra.Command) {
 	cmd.PersistentFlags().StringArrayP("peer", "p", nil, "base64 encoded public key and allowed ips of peer (e.g. -p \"publicKey,allowedIPs\")")
 	cmd.PersistentFlags().String("config", "", "config file (default is .wireguard-hub.yaml)")
 	cmd.PersistentFlags().String("log-level", "debug", "log level (debug, info, warn, error, fatal)")
+	cmd.PersistentFlags().Uint16("debug-port", 0, "port to listen on")
 	cmd.PersistentFlags().SortFlags = true
 
 	must(viper.BindPFlag("privateKey", cmd.PersistentFlags().Lookup("private-key")))
@@ -92,4 +93,6 @@ func setFlags(cmd *cobra.Command) {
 	viper.MustBindEnv("bindAddress", "BIND_ADDRESS")
 	must(viper.BindPFlag("logLevel", cmd.PersistentFlags().Lookup("log-level")))
 	viper.MustBindEnv("logLevel", "LOG_LEVEL")
+	must(viper.BindPFlag("debugPort", cmd.PersistentFlags().Lookup("debug-port")))
+	viper.MustBindEnv("debugPort", "DEBUG_PORT")
 }
