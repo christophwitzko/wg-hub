@@ -1,5 +1,6 @@
 privateKey: 8I70iI+UA/dBlxP1gGfR7sNrPP8mfDMI+dO8cE8B6lA=
 port: 9999
+bindAddress: fly-global-services
 peers:
   - publicKey: h1/wJ5KoQX1fQzQ25rlHb18wgAG80vkDLtn8B7pxOW0=
     allowedIPs: 100.100.0.1/32

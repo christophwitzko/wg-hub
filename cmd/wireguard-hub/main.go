@@ -60,7 +60,7 @@ func run(log *logrus.Logger, cmd *cobra.Command, _ []string) error {
 		Verbosef: log.Debugf,
 		Errorf:   log.Errorf,
 	}
-	dev := device.NewDevice(tunDev, wgconn.NewStdNetBind(), devLogger)
+	dev := device.NewDevice(tunDev, wgconn.NewStdNetBind(cfg.BindAddr), devLogger)
 
 	wgConf := &bytes.Buffer{}
 	wgConf.WriteString("private_key=" + cfg.PrivateKey + "\n")

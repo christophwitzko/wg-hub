@@ -62,6 +62,7 @@ func (p *Peer) String() string {
 type Config struct {
 	PrivateKey string
 	Port       uint16
+	BindAddr   string
 	Peers      []*Peer
 }
 
@@ -80,7 +81,8 @@ func parseConfig(log *logrus.Logger, cmd *cobra.Command) (*Config, error) {
 	}
 
 	port := viper.GetUint16("port")
-	log.Infof("listening port: %d", port)
+	bindAddr := viper.GetString("bindAddress")
+	log.Infof("listening on %s:%d", bindAddr, port)
 
 	inputPeers := mustGet(cmd.Flags().GetStringArray("peer"))
 	var configPeers []map[string]string
@@ -107,6 +109,7 @@ func parseConfig(log *logrus.Logger, cmd *cobra.Command) (*Config, error) {
 	return &Config{
 		PrivateKey: privateKey,
 		Port:       port,
+		BindAddr:   bindAddr,
 		Peers:      peers,
 	}, nil
 }

@@ -78,6 +78,7 @@ func parseLogLevel(logLevel string) (logrus.Level, bool) {
 func setFlags(cmd *cobra.Command) {
 	cmd.PersistentFlags().String("private-key", "", "base64 encoded private key")
 	cmd.PersistentFlags().Uint16("port", 9999, "port to listen on")
+	cmd.PersistentFlags().String("bind-address", "", "address to bind to")
 	cmd.PersistentFlags().StringArrayP("peer", "p", nil, "base64 encoded public key and allowed ips of peer (e.g. -p \"publicKey,allowedIPs\")")
 	cmd.PersistentFlags().String("config", "", "config file (default is .wireguard-hub.yaml)")
 	cmd.PersistentFlags().String("log-level", "debug", "log level (debug, info, warn, error, fatal)")
@@ -85,5 +86,6 @@ func setFlags(cmd *cobra.Command) {
 
 	must(viper.BindPFlag("privateKey", cmd.PersistentFlags().Lookup("private-key")))
 	must(viper.BindPFlag("port", cmd.PersistentFlags().Lookup("port")))
+	must(viper.BindPFlag("bindAddress", cmd.PersistentFlags().Lookup("bind-address")))
 	must(viper.BindPFlag("logLevel", cmd.PersistentFlags().Lookup("log-level")))
 }

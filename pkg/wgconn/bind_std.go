@@ -8,6 +8,7 @@ package wgconn
 
 import (
 	"errors"
+	"fmt"
 	"net"
 	"net/netip"
 	"sync"
@@ -21,14 +22,19 @@ import (
 // It uses the Go's net package to implement networking.
 // See LinuxSocketBind for a proper implementation on the Linux platform.
 type StdNetBind struct {
-	mu         sync.Mutex // protects following fields
-	ipv4       *net.UDPConn
-	ipv6       *net.UDPConn
-	blackhole4 bool
-	blackhole6 bool
+	mu          sync.Mutex // protects following fields
+	ipv4        *net.UDPConn
+	ipv6        *net.UDPConn
+	blackhole4  bool
+	blackhole6  bool
+	bindAddress string
 }
 
-func NewStdNetBind() conn.Bind { return &StdNetBind{} }
+func NewStdNetBind(bindAddress string) conn.Bind {
+	return &StdNetBind{
+		bindAddress: bindAddress,
+	}
+}
 
 type StdNetEndpoint netip.AddrPort
 
@@ -65,14 +71,21 @@ func (e StdNetEndpoint) SrcToString() string {
 	return ""
 }
 
-func listenNet(network string, port int) (*net.UDPConn, int, error) {
-	conn, err := net.ListenUDP(network, &net.UDPAddr{Port: port})
+func (bind *StdNetBind) listenNet(network string, port int) (*net.UDPConn, int, error) {
+	addr := &net.UDPAddr{Port: port}
+
+	// try to resolve network address
+	resAddr, err := net.ResolveUDPAddr(network, fmt.Sprintf("%s:%d", bind.bindAddress, port))
+	if err == nil {
+		addr = resAddr
+	}
+
+	c, err := net.ListenUDP(network, addr)
 	if err != nil {
 		return nil, 0, err
 	}
-
 	// Retrieve port.
-	laddr := conn.LocalAddr()
+	laddr := c.LocalAddr()
 	uaddr, err := net.ResolveUDPAddr(
 		laddr.Network(),
 		laddr.String(),
@@ -80,9 +93,10 @@ func listenNet(network string, port int) (*net.UDPConn, int, error) {
 	if err != nil {
 		return nil, 0, err
 	}
-	return conn, uaddr.Port, nil
+	return c, uaddr.Port, nil
 }
 
+//gocyclo:ignore
 func (bind *StdNetBind) Open(uport uint16) ([]conn.ReceiveFunc, uint16, error) {
 	bind.mu.Lock()
 	defer bind.mu.Unlock()
@@ -100,13 +114,13 @@ again:
 	port := int(uport)
 	var ipv4, ipv6 *net.UDPConn
 
-	ipv4, port, err = listenNet("udp4", port)
+	ipv4, port, err = bind.listenNet("udp4", port)
 	if err != nil && !errors.Is(err, syscall.EAFNOSUPPORT) {
 		return nil, 0, err
 	}
 
 	// Listen on the same port as we're using for ipv4.
-	ipv6, port, err = listenNet("udp6", port)
+	ipv6, port, err = bind.listenNet("udp6", port)
 	if uport == 0 && errors.Is(err, syscall.EADDRINUSE) && tries < 100 {
 		ipv4.Close()
 		tries++
@@ -176,20 +190,20 @@ func (bind *StdNetBind) Send(buff []byte, endpoint conn.Endpoint) error {
 
 	bind.mu.Lock()
 	blackhole := bind.blackhole4
-	conn := bind.ipv4
+	c := bind.ipv4
 	if addrPort.Addr().Is6() {
 		blackhole = bind.blackhole6
-		conn = bind.ipv6
+		c = bind.ipv6
 	}
 	bind.mu.Unlock()
 
 	if blackhole {
 		return nil
 	}
-	if conn == nil {
+	if c == nil {
 		return syscall.EAFNOSUPPORT
 	}
-	_, err = conn.WriteToUDPAddrPort(buff, addrPort)
+	_, err = c.WriteToUDPAddrPort(buff, addrPort)
 	return err
 }
 
