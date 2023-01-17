@@ -71,10 +71,12 @@ func run(log *logrus.Logger, cmd *cobra.Command, _ []string) error {
 		wgConf.WriteString("public_key=" + peer.PublicKeyHex + "\n")
 		wgConf.WriteString("allowed_ip=" + peer.AllowedIP + "\n")
 	}
-	if err := dev.IpcSetOperation(wgConf); err != nil {
+	err = dev.IpcSetOperation(wgConf)
+	if err != nil {
 		return err
 	}
-	if err := dev.Up(); err != nil {
+	err = dev.Up()
+	if err != nil {
 		return err
 	}
 
