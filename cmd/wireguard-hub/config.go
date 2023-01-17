@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"net/netip"
+	"os"
 	"strconv"
 	"strings"
 
@@ -85,6 +86,13 @@ func parseConfig(log *logrus.Logger, cmd *cobra.Command) (*Config, error) {
 	log.Infof("listening on %s:%d", bindAddr, port)
 
 	inputPeers := mustGet(cmd.Flags().GetStringArray("peer"))
+	for _, s := range os.Environ() {
+		if !strings.HasPrefix(s, "PEER_") {
+			continue
+		}
+		_, peer, _ := strings.Cut(s, "=")
+		inputPeers = append(inputPeers, peer)
+	}
 	var configPeers []map[string]string
 	err = viper.UnmarshalKey("peers", &configPeers)
 	if err != nil {

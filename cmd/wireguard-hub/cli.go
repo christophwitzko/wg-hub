@@ -85,7 +85,11 @@ func setFlags(cmd *cobra.Command) {
 	cmd.PersistentFlags().SortFlags = true
 
 	must(viper.BindPFlag("privateKey", cmd.PersistentFlags().Lookup("private-key")))
+	viper.MustBindEnv("privateKey", "PRIVATE_KEY")
 	must(viper.BindPFlag("port", cmd.PersistentFlags().Lookup("port")))
+	viper.MustBindEnv("port", "PORT")
 	must(viper.BindPFlag("bindAddress", cmd.PersistentFlags().Lookup("bind-address")))
+	viper.MustBindEnv("bindAddress", "BIND_ADDRESS")
 	must(viper.BindPFlag("logLevel", cmd.PersistentFlags().Lookup("log-level")))
+	viper.MustBindEnv("logLevel", "LOG_LEVEL")
 }
