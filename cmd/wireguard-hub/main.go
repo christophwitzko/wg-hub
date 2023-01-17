@@ -8,9 +8,9 @@ import (
 	"syscall"
 
 	"github.com/christophwitzko/wireguard-hub/pkg/loopback"
+	"github.com/christophwitzko/wireguard-hub/pkg/wgconn"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"golang.zx2c4.com/wireguard/conn"
 	"golang.zx2c4.com/wireguard/device"
 )
 
@@ -60,7 +60,7 @@ func run(log *logrus.Logger, cmd *cobra.Command, _ []string) error {
 		Verbosef: log.Debugf,
 		Errorf:   log.Errorf,
 	}
-	dev := device.NewDevice(tunDev, conn.NewDefaultBind(), devLogger)
+	dev := device.NewDevice(tunDev, wgconn.NewStdNetBind(), devLogger)
 
 	wgConf := &bytes.Buffer{}
 	wgConf.WriteString("private_key=" + cfg.PrivateKey + "\n")
