@@ -11,7 +11,7 @@ processes = []
 
 [env]
   PORT = "9999"
-  DEBUG_PORT = "10000"
+  DEBUG_ADDRESS = "100.100.0.100"
   BIND_ADDRESS= "fly-global-services"
   PEER_1 = "h1/wJ5KoQX1fQzQ25rlHb18wgAG80vkDLtn8B7pxOW0=,100.100.0.1/32"
   PEER_2 = "h2/PAmEgoIRLYBDDTL3dZKAOaLEhu4270vlNWXFMSys=,100.100.0.2/32"
@@ -21,9 +21,3 @@ processes = []
   protocol = "udp"
   [[services.ports]]
     port = 9999
-
-[[services]]
-  internal_port = 10000
-  protocol = "tcp"
-  [[services.ports]]
-    port = 10000

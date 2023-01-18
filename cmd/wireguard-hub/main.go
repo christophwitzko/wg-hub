@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/christophwitzko/wireguard-hub/pkg/config"
 	"github.com/christophwitzko/wireguard-hub/pkg/loopback"
 	"github.com/christophwitzko/wireguard-hub/pkg/wgconn"
 	"github.com/christophwitzko/wireguard-hub/pkg/wgdebug"
@@ -38,10 +39,10 @@ func main() {
 		},
 	}
 
-	setFlags(rootCmd)
+	config.SetFlags(rootCmd)
 
 	cobra.OnInitialize(func() {
-		onInitialize(log, rootCmd)
+		config.OnInitialize(log, rootCmd)
 	})
 
 	if err := rootCmd.Execute(); err != nil {
@@ -50,7 +51,7 @@ func main() {
 }
 
 func run(log *logrus.Logger, cmd *cobra.Command, _ []string) error {
-	cfg, err := parseConfig(log, cmd)
+	cfg, err := config.ParseConfig(log, cmd)
 	if err != nil {
 		return err
 	}
@@ -62,10 +63,10 @@ func run(log *logrus.Logger, cmd *cobra.Command, _ []string) error {
 		Verbosef: log.Debugf,
 		Errorf:   log.Errorf,
 	}
-	dev := device.NewDevice(tunDev, wgconn.NewStdNetBind(cfg.BindAddr), devLogger)
+	dev := device.NewDevice(tunDev, wgconn.NewStdNetBind(cfg.BindAddress), devLogger)
 
 	wgConf := &bytes.Buffer{}
-	wgConf.WriteString("private_key=" + cfg.PrivateKey + "\n")
+	wgConf.WriteString("private_key=" + cfg.PrivateKeyHex + "\n")
 	wgConf.WriteString("listen_port=" + cfg.GetPort() + "\n")
 	for _, peer := range cfg.Peers {
 		wgConf.WriteString("public_key=" + peer.PublicKeyHex + "\n")
@@ -81,9 +82,9 @@ func run(log *logrus.Logger, cmd *cobra.Command, _ []string) error {
 	}
 
 	stopDebugServer := func() {}
-	if cfg.DebugPort > 0 {
-		log.Infof("starting debug server on port %d", cfg.DebugPort)
-		stopDebugServer, err = wgdebug.StartDebugServer(log, dev, fmt.Sprintf(":%d", cfg.DebugPort))
+	if cfg.DebugAddress != "" {
+		log.Infof("starting debug server on %s", cfg.DebugAddress)
+		stopDebugServer, err = wgdebug.Init(log, dev, cfg)
 		if err != nil {
 			return fmt.Errorf("failed to start debug server: %w", err)
 		}

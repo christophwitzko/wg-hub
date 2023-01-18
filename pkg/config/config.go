@@ -1,9 +1,10 @@
-package main
+package config
 
 import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
+	"net"
 	"net/netip"
 	"os"
 	"strconv"
@@ -12,9 +13,10 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
 
-func base64ToHex(b64 string) (string, error) {
+func Base64ToHex(b64 string) (string, error) {
 	decKey, err := base64.StdEncoding.DecodeString(b64)
 	if err != nil {
 		return "", err
@@ -36,7 +38,7 @@ func NewPeer(peerConfig string) (*Peer, error) {
 	p := &Peer{
 		PublicKey: publicKey,
 	}
-	publicKeyHex, err := base64ToHex(p.PublicKey)
+	publicKeyHex, err := Base64ToHex(p.PublicKey)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode peer public key: %w", err)
 	}
@@ -61,32 +63,46 @@ func (p *Peer) String() string {
 }
 
 type Config struct {
-	PrivateKey string
-	Port       uint16
-	BindAddr   string
-	Peers      []*Peer
-	DebugPort  uint16
+	PrivateKeyHex string
+	PrivateKey    wgtypes.Key
+	Port          uint16
+	BindAddress   string
+	Peers         []*Peer
+	DebugAddress  string
 }
 
 func (c *Config) GetPort() string {
 	return strconv.FormatUint(uint64(c.Port), 10)
 }
 
-func parseConfig(log *logrus.Logger, cmd *cobra.Command) (*Config, error) {
+func (c *Config) ResolvedBindAddr() string {
+	addr, err := net.ResolveIPAddr("ip", c.BindAddress)
+	if err != nil {
+		return c.BindAddress
+	}
+	return addr.String()
+}
+
+func ParseConfig(log *logrus.Logger, cmd *cobra.Command) (*Config, error) {
 	privateKey := viper.GetString("privateKey")
 	if privateKey == "" {
 		return nil, fmt.Errorf("private-key is required")
 	}
-	privateKey, err := base64ToHex(privateKey)
+	wgPrivateKey, err := wgtypes.ParseKey(privateKey)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode private-key: %w", err)
+		return nil, fmt.Errorf("failed to parse private key: %w", err)
+	}
+	privateKeyHex, err := Base64ToHex(wgPrivateKey.String())
+	if err != nil {
+		// this should never happen
+		panic(err)
 	}
 
 	port := viper.GetUint16("port")
 	bindAddr := viper.GetString("bindAddress")
 	log.Infof("listening on %s:%d", bindAddr, port)
 
-	inputPeers := mustGet(cmd.Flags().GetStringArray("peer"))
+	inputPeers := MustGet(cmd.Flags().GetStringArray("peer"))
 	for _, s := range os.Environ() {
 		if !strings.HasPrefix(s, "PEER_") {
 			continue
@@ -114,12 +130,14 @@ func parseConfig(log *logrus.Logger, cmd *cobra.Command) (*Config, error) {
 		peers[i] = p
 		log.Infof("adding %s", p)
 	}
+
 	// TODO: check ip ranges overlap
 	return &Config{
-		PrivateKey: privateKey,
-		Port:       port,
-		BindAddr:   bindAddr,
-		Peers:      peers,
-		DebugPort:  viper.GetUint16("debugPort"),
+		PrivateKeyHex: privateKeyHex,
+		PrivateKey:    wgPrivateKey,
+		Port:          port,
+		BindAddress:   bindAddr,
+		Peers:         peers,
+		DebugAddress:  viper.GetString("debugAddress"),
 	}, nil
 }
