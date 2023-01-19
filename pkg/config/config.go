@@ -68,7 +68,8 @@ type Config struct {
 	Port          uint16
 	BindAddress   string
 	Peers         []*Peer
-	DebugAddress  string
+	HubAddress    string
+	DebugServer   bool
 }
 
 func (c *Config) GetPort() string {
@@ -138,6 +139,7 @@ func ParseConfig(log *logrus.Logger, cmd *cobra.Command) (*Config, error) {
 		Port:          port,
 		BindAddress:   bindAddr,
 		Peers:         peers,
-		DebugAddress:  viper.GetString("debugAddress"),
+		HubAddress:    viper.GetString("hubAddress"),
+		DebugServer:   viper.GetBool("debugServer"),
 	}, nil
 }

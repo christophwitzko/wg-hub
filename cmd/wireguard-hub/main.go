@@ -9,12 +9,14 @@ import (
 	"syscall"
 
 	"github.com/christophwitzko/wireguard-hub/pkg/config"
+	"github.com/christophwitzko/wireguard-hub/pkg/hub"
 	"github.com/christophwitzko/wireguard-hub/pkg/loopback"
 	"github.com/christophwitzko/wireguard-hub/pkg/wgconn"
 	"github.com/christophwitzko/wireguard-hub/pkg/wgdebug"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"golang.zx2c4.com/wireguard/device"
+	"golang.zx2c4.com/wireguard/tun/netstack"
 )
 
 func main() {
@@ -81,10 +83,19 @@ func run(log *logrus.Logger, cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	stopDebugServer := func() {}
-	if cfg.DebugAddress != "" {
-		log.Infof("starting debug server on %s", cfg.DebugAddress)
-		stopDebugServer, err = wgdebug.Init(log, dev, cfg)
+	stopHubInstance := func() {}
+	var tunNet *netstack.Net
+	if cfg.HubAddress != "" {
+		log.Infof("starting hub instance on %s", cfg.HubAddress)
+		stopHubInstance, tunNet, err = hub.Init(log, dev, cfg)
+		if err != nil {
+			return fmt.Errorf("failed to start debug server: %w", err)
+		}
+	}
+
+	if cfg.DebugServer && tunNet != nil {
+		log.Infof("starting debug server on http://%s:8080", cfg.HubAddress)
+		err = wgdebug.StartDebugServer(log, dev, tunNet)
 		if err != nil {
 			return fmt.Errorf("failed to start debug server: %w", err)
 		}
@@ -93,7 +104,7 @@ func run(log *logrus.Logger, cmd *cobra.Command, _ []string) error {
 	<-ctx.Done()
 	log.Println("stopping...")
 	stop()
-	stopDebugServer()
+	stopHubInstance()
 	dev.Close()
 	log.Println("stopped")
 	return nil
