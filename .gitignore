@@ -1,3 +1,4 @@
 .idea/
 wg-hub
 !wg-hub/
+dist/

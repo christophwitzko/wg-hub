@@ -90,7 +90,7 @@ func run(log *logrus.Logger, cmd *cobra.Command, _ []string) error {
 		log.Infof("starting hub instance on %s", cfg.HubAddress)
 		stopHubInstance, tunNet, err = hub.Init(log, dev, cfg)
 		if err != nil {
-			return fmt.Errorf("failed to start debug server: %w", err)
+			return fmt.Errorf("failed to start hub instance: %w", err)
 		}
 	}
 

@@ -47,7 +47,12 @@ peers:
 
 Start the `wg-hub` instance:
 ```
-./wg-hub
+$ ./wg-hub --log-level info
+INFO[2023-01-20T20:15:10+01:00] using config: wireguard-hub.yaml
+INFO[2023-01-20T20:15:10+01:00] listening on :9999
+INFO[2023-01-20T20:15:10+01:00] adding peer(876f…29ed): 192.168.0.1/32
+INFO[2023-01-20T20:15:10+01:00] adding peer(876f…92de): 192.168.0.2/32
+
 ```
 
 Now `Host A` and `Host B` can communicate with each other through the `wg-hub` server.
@@ -57,6 +62,16 @@ Now `Host A` and `Host B` can communicate with each other through the `wg-hub` s
 ### Binary
 ```bash
 curl -SL https://get-release.xyz/christophwitzko/wg-hub/linux/amd64 -o ./wg-hub && chmod +x ./wg-hub
+```
+
+### Docker
+```bash
+docker run -it --rm \
+  -e PORT=9999 \
+  -e PEER_1="h1/wJ5KoQX1fQzQ25rlHb18wgAG80vkDLtn8B7pxOW0=,192.168.0.1/32" \
+  -e PEER_2="h2/nkfoPYSSno68B0mkbMhxPrn2gCgjelc7N2xSGMiE=,192.168.0.2/32" \
+  -p 9999:9999/udp \
+  ghcr.io/christophwitzko/wg-hub
 ```
 
 ## Todo
