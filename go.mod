@@ -1,4 +1,4 @@
-module github.com/christophwitzko/wireguard-hub
+module github.com/christophwitzko/wg-hub
 
 go 1.19
 

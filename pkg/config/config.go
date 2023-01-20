@@ -3,9 +3,9 @@ package config
 import (
 	"encoding/base64"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"net"
-	"net/netip"
 	"os"
 	"strconv"
 	"strings"
@@ -16,6 +16,17 @@ import (
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
 
+func Must(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
+func MustGet[T any](val T, err error) T {
+	Must(err)
+	return val
+}
+
 func Base64ToHex(b64 string) (string, error) {
 	decKey, err := base64.StdEncoding.DecodeString(b64)
 	if err != nil {
@@ -24,42 +35,83 @@ func Base64ToHex(b64 string) (string, error) {
 	return hex.EncodeToString(decKey), nil
 }
 
-type Peer struct {
-	PublicKey    string
-	PublicKeyHex string
-	AllowedIP    string
+func initViper(cmd *cobra.Command) error {
+	configFile := MustGet(cmd.Flags().GetString("config"))
+	if configFile != "" {
+		viper.SetConfigFile(configFile)
+	} else {
+		viper.AddConfigPath(".")
+		viper.SetConfigName("wireguard-hub.yaml")
+	}
+	viper.SetConfigType("yaml")
+
+	if err := viper.ReadInConfig(); err != nil {
+		var viperConfigNotFound viper.ConfigFileNotFoundError
+		if !errors.As(err, &viperConfigNotFound) {
+			return err
+		}
+	}
+	return nil
 }
 
-func NewPeer(peerConfig string) (*Peer, error) {
-	publicKey, ip, ok := strings.Cut(peerConfig, ",")
+func OnInitialize(log *logrus.Logger, cmd *cobra.Command) {
+	if err := initViper(cmd); err != nil {
+		log.Errorf("failed to load config: %v", err)
+		os.Exit(1)
+	}
+
+	logLevel := viper.GetString("logLevel")
+	parsedLogLevel, ok := parseLogLevel(logLevel)
 	if !ok {
-		return nil, fmt.Errorf("failed to parse peer config: %s", peerConfig)
+		log.Warnf("failed to parse log level: %s", logLevel)
 	}
-	p := &Peer{
-		PublicKey: publicKey,
-	}
-	publicKeyHex, err := Base64ToHex(p.PublicKey)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode peer public key: %w", err)
-	}
-	p.PublicKeyHex = publicKeyHex
+	log.SetLevel(parsedLogLevel)
 
-	// add subnet mask if not present
-	if !strings.Contains(ip, "/") {
-		ip = fmt.Sprintf("%s/32", ip)
+	usedConfigFile := viper.ConfigFileUsed()
+	if usedConfigFile != "" {
+		log.Infof("using config: %s", usedConfigFile)
 	}
-
-	// check if ip is valid
-	ipPrefix, err := netip.ParsePrefix(ip)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse allowed ip: %w", err)
-	}
-	p.AllowedIP = ipPrefix.String()
-	return p, nil
 }
 
-func (p *Peer) String() string {
-	return fmt.Sprintf("peer(%s…%s): %s", p.PublicKeyHex[:4], p.PublicKeyHex[len(p.PublicKeyHex)-4:], p.AllowedIP)
+func parseLogLevel(logLevel string) (logrus.Level, bool) {
+	switch strings.ToLower(logLevel) {
+	case "d", "debug":
+		return logrus.DebugLevel, true
+	case "i", "info":
+		return logrus.InfoLevel, true
+	case "w", "warn":
+		return logrus.WarnLevel, true
+	case "e", "error":
+		return logrus.ErrorLevel, true
+	case "f", "fatal":
+		return logrus.FatalLevel, true
+	}
+	return logrus.DebugLevel, false
+}
+
+func SetFlags(cmd *cobra.Command) {
+	cmd.PersistentFlags().String("private-key", "", "base64 encoded private key")
+	cmd.PersistentFlags().Uint16("port", 9999, "port to listen on")
+	cmd.PersistentFlags().String("bind-address", "", "address to bind to")
+	cmd.PersistentFlags().StringArrayP("peer", "p", nil, "base64 encoded public key and allowed ips of peer (e.g. -p \"publicKey,allowedIPs\")")
+	cmd.PersistentFlags().String("config", "", "config file (default is .wireguard-hub.yaml)")
+	cmd.PersistentFlags().String("log-level", "debug", "log level (debug, info, warn, error, fatal)")
+	cmd.PersistentFlags().String("hub-address", "100.100.100.100", "internal hub ip address")
+	cmd.PersistentFlags().Bool("debug-server", false, "enable debug mode and start on port 8080 the debug server")
+	cmd.PersistentFlags().SortFlags = true
+
+	Must(viper.BindPFlag("privateKey", cmd.PersistentFlags().Lookup("private-key")))
+	viper.MustBindEnv("privateKey", "PRIVATE_KEY")
+	Must(viper.BindPFlag("port", cmd.PersistentFlags().Lookup("port")))
+	viper.MustBindEnv("port", "PORT")
+	Must(viper.BindPFlag("bindAddress", cmd.PersistentFlags().Lookup("bind-address")))
+	viper.MustBindEnv("bindAddress", "BIND_ADDRESS")
+	Must(viper.BindPFlag("logLevel", cmd.PersistentFlags().Lookup("log-level")))
+	viper.MustBindEnv("logLevel", "LOG_LEVEL")
+	Must(viper.BindPFlag("hubAddress", cmd.PersistentFlags().Lookup("hub-address")))
+	viper.MustBindEnv("hubAddress", "HUB_ADDRESS")
+	Must(viper.BindPFlag("debugServer", cmd.PersistentFlags().Lookup("debug-server")))
+	viper.MustBindEnv("debugServer", "DEBUG_SERVER")
 }
 
 type Config struct {

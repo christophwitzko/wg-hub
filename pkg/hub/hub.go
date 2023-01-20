@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"net/netip"
 
-	"github.com/christophwitzko/wireguard-hub/pkg/config"
-	"github.com/christophwitzko/wireguard-hub/pkg/wgconn"
+	"github.com/christophwitzko/wg-hub/pkg/config"
+	"github.com/christophwitzko/wg-hub/pkg/wgconn"
 	"github.com/sirupsen/logrus"
 	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/tun/netstack"

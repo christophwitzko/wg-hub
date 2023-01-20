@@ -1,4 +1,4 @@
-package wgdebug
+package hub
 
 import (
 	"errors"

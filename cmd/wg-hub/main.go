@@ -8,28 +8,29 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/christophwitzko/wireguard-hub/pkg/config"
-	"github.com/christophwitzko/wireguard-hub/pkg/hub"
-	"github.com/christophwitzko/wireguard-hub/pkg/loopback"
-	"github.com/christophwitzko/wireguard-hub/pkg/wgconn"
-	"github.com/christophwitzko/wireguard-hub/pkg/wgdebug"
+	"github.com/christophwitzko/wg-hub/pkg/config"
+	"github.com/christophwitzko/wg-hub/pkg/hub"
+	"github.com/christophwitzko/wg-hub/pkg/loopback"
+	"github.com/christophwitzko/wg-hub/pkg/wgconn"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/tun/netstack"
 )
 
+var Version = "dev"
+
 func main() {
 	log := logrus.New()
 	log.SetFormatter(&logrus.TextFormatter{
 		FullTimestamp: true,
 	})
-	log.SetLevel(logrus.DebugLevel)
 
 	rootCmd := &cobra.Command{
-		Use:   "wireguard-hub",
-		Short: "wireguard user space hub",
-		Args:  cobra.NoArgs,
+		Use:     "wg-hub",
+		Short:   "WireGuard® Hub Server",
+		Version: Version,
+		Args:    cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := run(log, cmd, args); err != nil {
 				log.Errorf("ERROR: %v", err)
@@ -95,7 +96,7 @@ func run(log *logrus.Logger, cmd *cobra.Command, _ []string) error {
 
 	if cfg.DebugServer && tunNet != nil {
 		log.Infof("starting debug server on http://%s:8080", cfg.HubAddress)
-		err = wgdebug.StartDebugServer(log, dev, tunNet)
+		err = hub.StartDebugServer(log, dev, tunNet)
 		if err != nil {
 			return fmt.Errorf("failed to start debug server: %w", err)
 		}
