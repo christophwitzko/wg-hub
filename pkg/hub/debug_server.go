@@ -15,7 +15,7 @@ import (
 func debugHandler(log *logrus.Logger, dev *device.Device) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Infof("debug request from %s - %s %s", r.RemoteAddr, r.Method, r.URL.Path)
-		if r.Method != http.MethodGet || r.URL.Path != "/get_ipc" {
+		if r.Method != http.MethodGet || r.URL.Path != "/" {
 			http.NotFound(w, r)
 			return
 		}

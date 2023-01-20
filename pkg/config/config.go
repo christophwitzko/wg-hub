@@ -90,14 +90,14 @@ func parseLogLevel(logLevel string) (logrus.Level, bool) {
 }
 
 func SetFlags(cmd *cobra.Command) {
-	cmd.PersistentFlags().String("private-key", "", "base64 encoded private key")
+	cmd.PersistentFlags().String("private-key", "", "base64 encoded private key of the hub")
 	cmd.PersistentFlags().Uint16("port", 9999, "port to listen on")
-	cmd.PersistentFlags().String("bind-address", "", "address to bind to")
-	cmd.PersistentFlags().StringArrayP("peer", "p", nil, "base64 encoded public key and allowed ips of peer (e.g. -p \"publicKey,allowedIPs\")")
+	cmd.PersistentFlags().String("bind-address", "", "address to bind on")
+	cmd.PersistentFlags().StringArrayP("peer", "p", nil, "base64 encoded public key and allowed ips of a peer (e.g. -p \"<publicKey>,<allowedIPs>\")")
 	cmd.PersistentFlags().String("config", "", "config file (default is .wireguard-hub.yaml)")
 	cmd.PersistentFlags().String("log-level", "debug", "log level (debug, info, warn, error, fatal)")
-	cmd.PersistentFlags().String("hub-address", "", "internal hub ip address")
-	cmd.PersistentFlags().Bool("debug-server", false, "enable debug mode and start on port 8080 the debug server")
+	cmd.PersistentFlags().String("hub-address", "", "internal hub IP address")
+	cmd.PersistentFlags().Bool("debug-server", false, "start on <hubIP>:8080 the debug server")
 	cmd.PersistentFlags().SortFlags = true
 
 	Must(viper.BindPFlag("privateKey", cmd.PersistentFlags().Lookup("private-key")))
