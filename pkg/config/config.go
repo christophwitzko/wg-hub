@@ -96,7 +96,7 @@ func SetFlags(cmd *cobra.Command) {
 	cmd.PersistentFlags().StringArrayP("peer", "p", nil, "base64 encoded public key and allowed ips of peer (e.g. -p \"publicKey,allowedIPs\")")
 	cmd.PersistentFlags().String("config", "", "config file (default is .wireguard-hub.yaml)")
 	cmd.PersistentFlags().String("log-level", "debug", "log level (debug, info, warn, error, fatal)")
-	cmd.PersistentFlags().String("hub-address", "100.100.100.100", "internal hub ip address")
+	cmd.PersistentFlags().String("hub-address", "", "internal hub ip address")
 	cmd.PersistentFlags().Bool("debug-server", false, "enable debug mode and start on port 8080 the debug server")
 	cmd.PersistentFlags().SortFlags = true
 

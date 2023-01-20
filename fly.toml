@@ -7,14 +7,16 @@ processes = []
   builder = "paketobuildpacks/builder:base"
   buildpacks = ["gcr.io/paketo-buildpacks/go"]
   [build.args]
-    BP_GO_TARGETS = "./cmd/wireguard-hub"
+    BP_GO_TARGETS = "./cmd/wg-hub"
 
 [env]
+# configure the PRIVATE_KEY using
+# flyctl secrets set PRIVATE_KEY="..."
   PORT = "9999"
   DEBUG_SERVER = "true"
   BIND_ADDRESS= "fly-global-services"
-  PEER_1 = "h1/wJ5KoQX1fQzQ25rlHb18wgAG80vkDLtn8B7pxOW0=,100.100.0.1/32"
-  PEER_2 = "h2/nkfoPYSSno68B0mkbMhxPrn2gCgjelc7N2xSGMiE=,100.100.0.2/32"
+  PEER_1 = "h1/wJ5KoQX1fQzQ25rlHb18wgAG80vkDLtn8B7pxOW0=,192.168.0.1/32"
+  PEER_2 = "h2/nkfoPYSSno68B0mkbMhxPrn2gCgjelc7N2xSGMiE=,192.168.0.2/32"
 
 [[services]]
   internal_port = 9999
