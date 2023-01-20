@@ -67,9 +67,10 @@ curl -SL https://get-release.xyz/christophwitzko/wg-hub/linux/amd64 -o ./wg-hub 
 ### Docker
 ```bash
 docker run -it --rm \
+  -e PRIVATE_KEY="..."
   -e PORT=9999 \
-  -e PEER_1="h1/wJ5KoQX1fQzQ25rlHb18wgAG80vkDLtn8B7pxOW0=,192.168.0.1/32" \
-  -e PEER_2="h2/nkfoPYSSno68B0mkbMhxPrn2gCgjelc7N2xSGMiE=,192.168.0.2/32" \
+  -e PEER_1="hostA/...,192.168.0.1/32" \
+  -e PEER_2="hostB/...,192.168.0.2/32" \
   -p 9999:9999/udp \
   ghcr.io/christophwitzko/wg-hub
 ```
