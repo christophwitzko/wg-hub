@@ -69,7 +69,7 @@ func (tun *Tun) Name() (string, error) {
 	return "loopback", nil
 }
 
-func (tun *Tun) Events() chan tun.Event {
+func (tun *Tun) Events() <-chan tun.Event {
 	return tun.events
 }
 
