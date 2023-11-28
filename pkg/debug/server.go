@@ -1,4 +1,4 @@
-package hub
+package debug
 
 import (
 	"errors"
@@ -37,7 +37,7 @@ func debugHandler(log *logrus.Logger, dev *device.Device) http.Handler {
 	})
 }
 
-func StartDebugServer(log *logrus.Logger, dev *device.Device, tunNet *netstack.Net) error {
+func StartServer(log *logrus.Logger, dev *device.Device, tunNet *netstack.Net) error {
 	listener, err := tunNet.ListenTCP(&net.TCPAddr{Port: 8080})
 	if err != nil {
 		return err

@@ -9,6 +9,7 @@ import (
 	"syscall"
 
 	"github.com/christophwitzko/wg-hub/pkg/config"
+	"github.com/christophwitzko/wg-hub/pkg/debug"
 	"github.com/christophwitzko/wg-hub/pkg/hub"
 	"github.com/christophwitzko/wg-hub/pkg/loopback"
 	"github.com/christophwitzko/wg-hub/pkg/wgconn"
@@ -96,7 +97,7 @@ func run(log *logrus.Logger, cmd *cobra.Command, _ []string) error {
 
 	if cfg.DebugServer && tunNet != nil {
 		log.Infof("starting debug server on http://%s:8080", cfg.HubAddress)
-		err = hub.StartDebugServer(log, dev, tunNet)
+		err = debug.StartServer(log, dev, tunNet)
 		if err != nil {
 			return fmt.Errorf("failed to start debug server: %w", err)
 		}
