@@ -32,33 +32,33 @@ func (tun *Tun) File() *os.File {
 	return nil
 }
 
-func (tun *Tun) Read(buf []byte, offset int) (int, error) {
+func (tun *Tun) Read(buffs [][]byte, sizes []int, offset int) (int, error) {
 	_, ok := <-tun.readSignal
 	if !ok {
 		return 0, os.ErrClosed
 	}
-	n, err := tun.buf.Read(buf[offset:])
+	n, err := tun.buf.Read(buffs[0][offset:])
+	sizes[0] = n
 	tun.writeSignal <- struct{}{}
-	return n, err
+	return 1, err
 }
 
-func (tun *Tun) Write(buf []byte, offset int) (int, error) {
-	packet := buf[offset:]
+func (tun *Tun) Write(buffs [][]byte, offset int) (int, error) {
+	if len(buffs) != 1 {
+		panic("loopback: invalid batch size")
+	}
+	packet := buffs[0][offset:]
 	if len(packet) == 0 {
-		return 0, nil
+		return 1, nil
 	}
 	_, ok := <-tun.writeSignal
 	if !ok {
 		return 0, os.ErrClosed
 	}
 	tun.buf.Reset()
-	n, err := tun.buf.Write(packet)
+	_, err := tun.buf.Write(packet)
 	tun.readSignal <- struct{}{}
-	return n, err
-}
-
-func (tun *Tun) Flush() error {
-	return nil
+	return 1, err
 }
 
 func (tun *Tun) MTU() (int, error) {
@@ -87,4 +87,8 @@ func (tun *Tun) Close() error {
 		close(tun.readSignal)
 	}
 	return nil
+}
+
+func (tun *Tun) BatchSize() int {
+	return 1
 }

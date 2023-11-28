@@ -20,7 +20,7 @@ func TestLoopbackTun(t *testing.T) {
 	doneChan := make(chan struct{})
 	go func() {
 		for _, data := range testData {
-			_, err := tunDev.Write(data, 0)
+			_, err := tunDev.Write([][]byte{data}, 0)
 			if err != nil {
 				t.Errorf("error writing to tun: %v", err)
 			}
@@ -28,17 +28,19 @@ func TestLoopbackTun(t *testing.T) {
 		close(doneChan)
 	}()
 	for _, data := range testData {
-		buf := make([]byte, 1000)
-		size, err := tunDev.Read(buf, 0)
+		buf := [][]byte{make([]byte, 1000)}
+		sizes := []int{0}
+		_, err := tunDev.Read(buf, sizes, 0)
 		if err != nil {
 			t.Errorf("error reading from tun: %v", err)
 		}
-		require.Equal(t, data, buf[:size])
+		require.Equal(t, data, buf[0][:sizes[0]])
 	}
 	<-doneChan
 	require.NoError(t, tunDev.Close())
-	buf := make([]byte, 1000)
-	_, err := tunDev.Read(buf, 0)
+	buf := [][]byte{make([]byte, 1000)}
+	sizes := []int{0}
+	_, err := tunDev.Read(buf, sizes, 0)
 	require.ErrorIs(t, os.ErrClosed, err)
 	_, err = tunDev.Write(buf, 0)
 	require.ErrorIs(t, os.ErrClosed, err)

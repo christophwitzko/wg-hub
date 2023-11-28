@@ -145,6 +145,10 @@ again:
 	return fns, uint16(port), nil
 }
 
+func (bind *StdNetBind) BatchSize() int {
+	return 1
+}
+
 func (bind *StdNetBind) Close() error {
 	bind.mu.Lock()
 	defer bind.mu.Unlock()
@@ -167,20 +171,30 @@ func (bind *StdNetBind) Close() error {
 }
 
 func (*StdNetBind) makeReceiveIPv4(c *net.UDPConn) conn.ReceiveFunc {
-	return func(buff []byte) (int, conn.Endpoint, error) {
-		n, endpoint, err := c.ReadFromUDPAddrPort(buff)
-		return n, asEndpoint(endpoint), err
+	return func(buffs [][]byte, sizes []int, eps []conn.Endpoint) (n int, err error) {
+		size, endpoint, err := c.ReadFromUDPAddrPort(buffs[0])
+		if err == nil {
+			sizes[0] = size
+			eps[0] = asEndpoint(endpoint)
+			return 1, nil
+		}
+		return 0, err
 	}
 }
 
 func (*StdNetBind) makeReceiveIPv6(c *net.UDPConn) conn.ReceiveFunc {
-	return func(buff []byte) (int, conn.Endpoint, error) {
-		n, endpoint, err := c.ReadFromUDPAddrPort(buff)
-		return n, asEndpoint(endpoint), err
+	return func(buffs [][]byte, sizes []int, eps []conn.Endpoint) (n int, err error) {
+		size, endpoint, err := c.ReadFromUDPAddrPort(buffs[0])
+		if err == nil {
+			sizes[0] = size
+			eps[0] = asEndpoint(endpoint)
+			return 1, nil
+		}
+		return 0, err
 	}
 }
 
-func (bind *StdNetBind) Send(buff []byte, endpoint conn.Endpoint) error {
+func (bind *StdNetBind) Send(buffs [][]byte, endpoint conn.Endpoint) error {
 	var err error
 	nend, ok := endpoint.(StdNetEndpoint)
 	if !ok {
@@ -203,8 +217,13 @@ func (bind *StdNetBind) Send(buff []byte, endpoint conn.Endpoint) error {
 	if c == nil {
 		return syscall.EAFNOSUPPORT
 	}
-	_, err = c.WriteToUDPAddrPort(buff, addrPort)
-	return err
+	for _, buff := range buffs {
+		_, err = c.WriteToUDPAddrPort(buff, addrPort)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // endpointPool contains a re-usable set of mapping from netip.AddrPort to Endpoint.
@@ -228,6 +247,6 @@ func asEndpoint(ap netip.AddrPort) conn.Endpoint {
 	return e
 }
 
-func (bind *StdNetBind) SetMark(mark uint32) error {
+func (bind *StdNetBind) SetMark(_ uint32) error {
 	return nil
 }
