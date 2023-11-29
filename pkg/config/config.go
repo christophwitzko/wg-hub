@@ -98,6 +98,7 @@ func SetFlags(cmd *cobra.Command) {
 	cmd.PersistentFlags().String("log-level", "debug", "log level (debug, info, warn, error, fatal)")
 	cmd.PersistentFlags().String("hub-address", "", "internal hub IP address")
 	cmd.PersistentFlags().Bool("debug-server", false, "start on <hubIP>:8080 the debug server")
+	cmd.PersistentFlags().Bool("api-server", false, "start on <hubIP>:80 the api server")
 	cmd.PersistentFlags().SortFlags = true
 
 	Must(viper.BindPFlag("privateKey", cmd.PersistentFlags().Lookup("private-key")))
@@ -112,6 +113,8 @@ func SetFlags(cmd *cobra.Command) {
 	viper.MustBindEnv("hubAddress", "HUB_ADDRESS")
 	Must(viper.BindPFlag("debugServer", cmd.PersistentFlags().Lookup("debug-server")))
 	viper.MustBindEnv("debugServer", "DEBUG_SERVER")
+	Must(viper.BindPFlag("apiServer", cmd.PersistentFlags().Lookup("api-server")))
+	viper.MustBindEnv("apiServer", "API_SERVER")
 }
 
 type Config struct {
@@ -122,6 +125,7 @@ type Config struct {
 	Peers         []*Peer
 	HubAddress    string
 	DebugServer   bool
+	APIServer     bool
 }
 
 func (c *Config) GetPort() string {
@@ -193,5 +197,6 @@ func ParseConfig(log *logrus.Logger, cmd *cobra.Command) (*Config, error) {
 		Peers:         peers,
 		HubAddress:    viper.GetString("hubAddress"),
 		DebugServer:   viper.GetBool("debugServer"),
+		APIServer:     viper.GetBool("apiServer"),
 	}, nil
 }

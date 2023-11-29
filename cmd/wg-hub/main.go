@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/christophwitzko/wg-hub/pkg/api"
 	"github.com/christophwitzko/wg-hub/pkg/config"
 	"github.com/christophwitzko/wg-hub/pkg/debug"
 	"github.com/christophwitzko/wg-hub/pkg/hub"
@@ -100,6 +101,14 @@ func run(log *logrus.Logger, cmd *cobra.Command, _ []string) error {
 		err = debug.StartServer(log, dev, tunNet)
 		if err != nil {
 			return fmt.Errorf("failed to start debug server: %w", err)
+		}
+	}
+
+	if cfg.APIServer && tunNet != nil {
+		log.Infof("starting api server on http://%s", cfg.HubAddress)
+		err = api.StartServer(log, dev, cfg, tunNet)
+		if err != nil {
+			return fmt.Errorf("failed to start api server: %w", err)
 		}
 	}
 
