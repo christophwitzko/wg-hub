@@ -1,8 +1,6 @@
 package config
 
 import (
-	"encoding/base64"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"net"
@@ -10,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/christophwitzko/wg-hub/pkg/ipc"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -25,14 +24,6 @@ func Must(err error) {
 func MustGet[T any](val T, err error) T {
 	Must(err)
 	return val
-}
-
-func Base64ToHex(b64 string) (string, error) {
-	decKey, err := base64.StdEncoding.DecodeString(b64)
-	if err != nil {
-		return "", err
-	}
-	return hex.EncodeToString(decKey), nil
 }
 
 func initViper(cmd *cobra.Command) error {
@@ -149,7 +140,7 @@ func ParseConfig(log *logrus.Logger, cmd *cobra.Command) (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse private key: %w", err)
 	}
-	privateKeyHex, err := Base64ToHex(wgPrivateKey.String())
+	privateKeyHex, err := ipc.Base64ToHex(wgPrivateKey.String())
 	if err != nil {
 		// this should never happen
 		panic(err)

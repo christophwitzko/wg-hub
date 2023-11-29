@@ -7,6 +7,7 @@ import (
 	"net/netip"
 
 	"github.com/christophwitzko/wg-hub/pkg/config"
+	"github.com/christophwitzko/wg-hub/pkg/ipc"
 	"github.com/christophwitzko/wg-hub/pkg/wgconn"
 	"github.com/sirupsen/logrus"
 	"golang.zx2c4.com/wireguard/device"
@@ -25,7 +26,7 @@ func Init(log *logrus.Logger, dev *device.Device, cfg *config.Config) (func(), *
 	}
 
 	wgConf := &bytes.Buffer{}
-	wgConf.WriteString("public_key=" + config.MustGet(config.Base64ToHex(pKey.PublicKey().String())) + "\n")
+	wgConf.WriteString("public_key=" + config.MustGet(ipc.Base64ToHex(pKey.PublicKey().String())) + "\n")
 	wgConf.WriteString("allowed_ip=" + cfg.HubAddress + "/32\n")
 	err = dev.IpcSetOperation(wgConf)
 	if err != nil {
@@ -50,7 +51,7 @@ func createWgDevice(log *logrus.Logger, cfg *config.Config, pkey wgtypes.Key) (f
 		Verbosef: device.DiscardLogf,
 	})
 
-	hubPublicKey, err := config.Base64ToHex(cfg.PrivateKey.PublicKey().String())
+	hubPublicKey, err := ipc.Base64ToHex(cfg.PrivateKey.PublicKey().String())
 	if err != nil {
 		return nil, nil, err
 	}
