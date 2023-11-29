@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/christophwitzko/wg-hub/pkg/config"
+	"github.com/christophwitzko/wg-hub/pkg/ipc"
 	"github.com/go-chi/chi/v5"
 	"github.com/sirupsen/logrus"
 	"golang.zx2c4.com/wireguard/device"
@@ -68,8 +69,12 @@ func (a *apiServer) initRoutes() {
 }
 
 func (a *apiServer) listPeers(w http.ResponseWriter, _ *http.Request) {
-	// TODO
-	a.sendError(w, "not implemented", http.StatusNotImplemented)
+	decConfig, err := a.dev.IpcGet()
+	if err != nil {
+		a.sendError(w, "failed to get ipc operation", http.StatusInternalServerError)
+		return
+	}
+	a.writeJSON(w, ipc.ParsePeers(decConfig))
 }
 
 func (a *apiServer) addPeer(w http.ResponseWriter, _ *http.Request) {
