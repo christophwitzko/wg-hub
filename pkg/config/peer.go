@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/netip"
 	"strings"
+
+	"github.com/christophwitzko/wg-hub/pkg/ipc"
 )
 
 type Peer struct {
@@ -20,7 +22,7 @@ func NewPeer(peerConfig string) (*Peer, error) {
 	p := &Peer{
 		PublicKey: publicKey,
 	}
-	publicKeyHex, err := Base64ToHex(p.PublicKey)
+	publicKeyHex, err := ipc.Base64ToHex(p.PublicKey)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode peer public key: %w", err)
 	}

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"errors"
 	"net"
 	"net/http"
@@ -32,16 +33,53 @@ func newAPIServer(log *logrus.Logger, dev *device.Device, cfg *config.Config) *a
 
 func (a *apiServer) loggerMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		a.log.Infof("[API REQUEST] %s - %s %s", r.RemoteAddr, r.Method, r.URL.Path)
+		a.log.Infof("api request: %s - %s %s", r.RemoteAddr, r.Method, r.URL.Path)
 		next.ServeHTTP(w, r)
 	})
 }
 
+func (a *apiServer) sendError(w http.ResponseWriter, err string, code int) {
+	a.log.Warnf("api error (code=%d): %s", code, err)
+	w.WriteHeader(code)
+	a.writeJSON(w, map[string]string{"error": err})
+}
+
+func (a *apiServer) writeJSON(w http.ResponseWriter, d any) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	err := json.NewEncoder(w).Encode(d)
+	if err != nil {
+		a.log.Errorf("api json write error: %v", err)
+	}
+}
+
 func (a *apiServer) initRoutes() {
 	a.router.Use(a.loggerMiddleware)
-	a.router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
+	a.router.NotFound(func(w http.ResponseWriter, _ *http.Request) {
+		a.sendError(w, "not found", http.StatusNotFound)
 	})
+	a.router.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		a.writeJSON(w, map[string]string{"status": "ok"})
+	})
+	a.router.Route("/peers", func(r chi.Router) {
+		r.Get("/", a.listPeers)
+		r.Post("/", a.addPeer)
+		r.Delete("/{publicKey}", a.removePeer)
+	})
+}
+
+func (a *apiServer) listPeers(w http.ResponseWriter, _ *http.Request) {
+	// TODO
+	a.sendError(w, "not implemented", http.StatusNotImplemented)
+}
+
+func (a *apiServer) addPeer(w http.ResponseWriter, _ *http.Request) {
+	// TODO
+	a.sendError(w, "not implemented", http.StatusNotImplemented)
+}
+
+func (a *apiServer) removePeer(w http.ResponseWriter, _ *http.Request) {
+	// TODO
+	a.sendError(w, "not implemented", http.StatusNotImplemented)
 }
 
 func (a *apiServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
