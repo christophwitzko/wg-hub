@@ -55,6 +55,7 @@ func main() {
 	}
 }
 
+//gocyclo:ignore
 func run(log *logrus.Logger, cmd *cobra.Command, _ []string) error {
 	cfg, err := config.ParseConfig(log, cmd)
 	if err != nil {

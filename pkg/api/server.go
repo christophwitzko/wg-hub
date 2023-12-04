@@ -100,7 +100,7 @@ func (a *apiServer) addPeer(w http.ResponseWriter, r *http.Request) {
 		a.sendError(w, "failed to decode peer public key", http.StatusBadRequest)
 		return
 	}
-	allowedIpPrefix, err := config.NormalizeAllowedIP(req.AllowedIP)
+	allowedIPPrefix, err := config.NormalizeAllowedIP(req.AllowedIP)
 	if err != nil {
 		a.sendError(w, "failed to parse allowed ip", http.StatusBadRequest)
 		a.log.Errorf("failed to parse allowed ip: %v", err)
@@ -110,7 +110,7 @@ func (a *apiServer) addPeer(w http.ResponseWriter, r *http.Request) {
 	addInstruction := fmt.Sprintf(
 		"public_key=%s\nreplace_allowed_ips=true\nallowed_ip=%s\n",
 		publicKeyHex,
-		allowedIpPrefix,
+		allowedIPPrefix,
 	)
 	err = a.dev.IpcSet(addInstruction)
 	if err != nil {
@@ -118,7 +118,7 @@ func (a *apiServer) addPeer(w http.ResponseWriter, r *http.Request) {
 		a.log.Errorf("failed to add peer: %v", err)
 		return
 	}
-	a.log.Infof("added peer %s (%s)", publicKeyHex, allowedIpPrefix)
+	a.log.Infof("added peer %s (%s)", publicKeyHex, allowedIPPrefix)
 	a.writeJSON(w, map[string]string{"status": "ok"})
 }
 
