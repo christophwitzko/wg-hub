@@ -45,6 +45,14 @@ func TestParsePeers(t *testing.T) {
 	require.Equal(t, 3, len(peers))
 	expectedPeers := []*Peer{
 		{
+			PublicKey:     "PceWRyI7y2zI3xbi5b5d0ioJdDA1nmZ9R1yd9pwkWWQ=",
+			AllowedIP:     "192.168.0.254/32",
+			Endpoint:      "127.0.0.1:55900",
+			LastHandshake: 3,
+			TxBytes:       460,
+			RxBytes:       372,
+		},
+		{
 			PublicKey:     "h1/wJ5KoQX1fQzQ25rlHb18wgAG80vkDLtn8B7pxOW0=",
 			AllowedIP:     "192.168.0.1/32",
 			Endpoint:      "127.0.0.1:49388",
@@ -55,14 +63,6 @@ func TestParsePeers(t *testing.T) {
 		{
 			PublicKey: "h2/PAmEgoIRLYBDDTL3dZKAOaLEhu4270vlNWXFMSys=",
 			AllowedIP: "192.168.0.2/32",
-		},
-		{
-			PublicKey:     "PceWRyI7y2zI3xbi5b5d0ioJdDA1nmZ9R1yd9pwkWWQ=",
-			AllowedIP:     "192.168.0.254/32",
-			Endpoint:      "127.0.0.1:55900",
-			LastHandshake: 3,
-			TxBytes:       460,
-			RxBytes:       372,
 		},
 	}
 	require.Equal(t, expectedPeers, peers)
