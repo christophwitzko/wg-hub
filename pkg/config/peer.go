@@ -14,6 +14,20 @@ type Peer struct {
 	AllowedIP    string
 }
 
+func NormalizeAllowedIP(ip string) (string, error) {
+	// add subnet mask if not present
+	if !strings.Contains(ip, "/") {
+		ip = fmt.Sprintf("%s/32", ip)
+	}
+
+	// check if ip is valid
+	ipPrefix, err := netip.ParsePrefix(ip)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse allowed ip: %w", err)
+	}
+	return ipPrefix.String(), nil
+}
+
 func NewPeer(peerConfig string) (*Peer, error) {
 	publicKey, ip, ok := strings.Cut(peerConfig, ",")
 	if !ok {
@@ -28,17 +42,11 @@ func NewPeer(peerConfig string) (*Peer, error) {
 	}
 	p.PublicKeyHex = publicKeyHex
 
-	// add subnet mask if not present
-	if !strings.Contains(ip, "/") {
-		ip = fmt.Sprintf("%s/32", ip)
-	}
-
-	// check if ip is valid
-	ipPrefix, err := netip.ParsePrefix(ip)
+	ipPrefix, err := NormalizeAllowedIP(ip)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse allowed ip: %w", err)
+		return nil, err
 	}
-	p.AllowedIP = ipPrefix.String()
+	p.AllowedIP = ipPrefix
 	return p, nil
 }
 

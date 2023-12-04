@@ -3,6 +3,7 @@ package ipc
 import (
 	"encoding/base64"
 	"encoding/hex"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -74,5 +75,9 @@ func ParsePeers(config string) []*Peer {
 	if currentPeer != nil {
 		peers = append(peers, currentPeer)
 	}
+	// sort by public key
+	sort.Slice(peers, func(i, j int) bool {
+		return peers[i].PublicKey < peers[j].PublicKey
+	})
 	return peers
 }
