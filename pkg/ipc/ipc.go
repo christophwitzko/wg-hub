@@ -25,12 +25,12 @@ func HexToBase64(hexKey string) (string, error) {
 }
 
 type Peer struct {
-	PublicKey     string
-	AllowedIP     string
-	Endpoint      string
-	LastHandshake uint64
-	TxBytes       uint64
-	RxBytes       uint64
+	PublicKey     string `json:"publicKey"`
+	AllowedIP     string `json:"allowedIP"`
+	Endpoint      string `json:"endpoint"`
+	LastHandshake uint64 `json:"lastHandshake"`
+	TxBytes       uint64 `json:"txBytes"`
+	RxBytes       uint64 `json:"rxBytes"`
 }
 
 func ParsePeers(config string) []*Peer {

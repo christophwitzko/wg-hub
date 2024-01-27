@@ -20,8 +20,8 @@ func (a *API) listPeers(w http.ResponseWriter, _ *http.Request) {
 }
 
 type AddPeerRequest struct {
-	PublicKey string
-	AllowedIP string
+	PublicKey string `json:"publicKey"`
+	AllowedIP string `json:"allowedIP"`
 }
 
 func (a *API) addPeer(w http.ResponseWriter, r *http.Request) {
