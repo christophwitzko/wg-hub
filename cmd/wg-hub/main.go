@@ -8,7 +8,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/christophwitzko/wg-hub/pkg/api"
+	"github.com/christophwitzko/wg-hub/pkg/webui"
+
 	"github.com/christophwitzko/wg-hub/pkg/config"
 	"github.com/christophwitzko/wg-hub/pkg/debug"
 	"github.com/christophwitzko/wg-hub/pkg/hub"
@@ -105,9 +106,9 @@ func run(log *logrus.Logger, cmd *cobra.Command, _ []string) error {
 		}
 	}
 
-	if cfg.APIServer && tunNet != nil {
-		log.Infof("starting api server on http://%s", cfg.HubAddress)
-		err = api.StartServer(log, dev, cfg, tunNet)
+	if cfg.Webui && tunNet != nil {
+		log.Infof("starting webui on http://%s", cfg.HubAddress)
+		err = webui.StartServer(log, dev, cfg, tunNet)
 		if err != nil {
 			return fmt.Errorf("failed to start api server: %w", err)
 		}
