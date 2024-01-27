@@ -89,7 +89,9 @@ func SetFlags(cmd *cobra.Command) {
 	cmd.PersistentFlags().String("log-level", "debug", "log level (debug, info, warn, error, fatal)")
 	cmd.PersistentFlags().String("hub-address", "", "internal hub IP address")
 	cmd.PersistentFlags().Bool("debug-server", false, "start on <hubIP>:8080 the debug server")
-	cmd.PersistentFlags().Bool("api-server", false, "start on <hubIP>:80 the api server")
+	cmd.PersistentFlags().Bool("webui", false, "start on <hubIP>:80 the webui and api")
+	cmd.PersistentFlags().String("webui-jwt-secret", "", "secret for JWT authentication")
+	cmd.PersistentFlags().String("webui-admin-password-hash", "", "bcrypt hash of the admin password")
 	cmd.PersistentFlags().SortFlags = true
 
 	Must(viper.BindPFlag("privateKey", cmd.PersistentFlags().Lookup("private-key")))
@@ -104,19 +106,25 @@ func SetFlags(cmd *cobra.Command) {
 	viper.MustBindEnv("hubAddress", "HUB_ADDRESS")
 	Must(viper.BindPFlag("debugServer", cmd.PersistentFlags().Lookup("debug-server")))
 	viper.MustBindEnv("debugServer", "DEBUG_SERVER")
-	Must(viper.BindPFlag("apiServer", cmd.PersistentFlags().Lookup("api-server")))
-	viper.MustBindEnv("apiServer", "API_SERVER")
+	Must(viper.BindPFlag("webui", cmd.PersistentFlags().Lookup("webui")))
+	viper.MustBindEnv("webui", "WEBUI")
+	Must(viper.BindPFlag("webuiJWTSecret", cmd.PersistentFlags().Lookup("webui-jwt-secret")))
+	viper.MustBindEnv("webui-jwt-secret", "WEBUI_JWT_SECRET")
+	Must(viper.BindPFlag("webuiAdminPasswordHash", cmd.PersistentFlags().Lookup("webui-admin-password-hash")))
+	viper.MustBindEnv("webui-admin-password-hash", "WEBUI_ADMIN_PASSWORD_HASH")
 }
 
 type Config struct {
-	PrivateKeyHex string
-	PrivateKey    wgtypes.Key
-	Port          uint16
-	BindAddress   string
-	Peers         []*Peer
-	HubAddress    string
-	DebugServer   bool
-	APIServer     bool
+	PrivateKeyHex          string
+	PrivateKey             wgtypes.Key
+	Port                   uint16
+	BindAddress            string
+	Peers                  []*Peer
+	HubAddress             string
+	DebugServer            bool
+	Webui                  bool
+	WebuiJWTSecret         string
+	WebuiAdminPasswordHash string
 }
 
 func (c *Config) GetPort() string {
@@ -181,13 +189,15 @@ func ParseConfig(log *logrus.Logger, cmd *cobra.Command) (*Config, error) {
 
 	// TODO: check ip ranges overlap
 	return &Config{
-		PrivateKeyHex: privateKeyHex,
-		PrivateKey:    wgPrivateKey,
-		Port:          port,
-		BindAddress:   bindAddr,
-		Peers:         peers,
-		HubAddress:    viper.GetString("hubAddress"),
-		DebugServer:   viper.GetBool("debugServer"),
-		APIServer:     viper.GetBool("apiServer"),
+		PrivateKeyHex:          privateKeyHex,
+		PrivateKey:             wgPrivateKey,
+		Port:                   port,
+		BindAddress:            bindAddr,
+		Peers:                  peers,
+		HubAddress:             viper.GetString("hubAddress"),
+		DebugServer:            viper.GetBool("debugServer"),
+		Webui:                  viper.GetBool("webui"),
+		WebuiJWTSecret:         viper.GetString("webuiJWTSecret"),
+		WebuiAdminPasswordHash: viper.GetString("webuiAdminPasswordHash"),
 	}, nil
 }
