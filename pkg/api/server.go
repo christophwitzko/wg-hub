@@ -68,12 +68,14 @@ func (a *API) authMiddleware(next http.Handler) http.Handler {
 
 func (a *API) sendError(w http.ResponseWriter, err string, code int) {
 	a.log.Warnf("api error (code=%d): %s", code, err)
-	w.WriteHeader(code)
-	a.writeJSON(w, map[string]string{"error": err})
+	a.writeJSON(w, map[string]string{"error": err}, code)
 }
 
-func (a *API) writeJSON(w http.ResponseWriter, d any) {
+func (a *API) writeJSON(w http.ResponseWriter, d any, code ...int) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	if len(code) > 0 {
+		w.WriteHeader(code[0])
+	}
 	err := json.NewEncoder(w).Encode(d)
 	if err != nil {
 		a.log.Errorf("api json write error: %v", err)

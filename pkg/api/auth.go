@@ -49,7 +49,7 @@ func (a *API) createAuth(w http.ResponseWriter, r *http.Request) {
 		a.sendError(w, "invalid password", http.StatusBadRequest)
 		return
 	}
-	claims := map[string]interface{}{"Username": req.Username}
+	claims := map[string]any{"Username": req.Username}
 	jwtauth.SetIssuedNow(claims)
 	// set expiry to 1000 days
 	jwtauth.SetExpiryIn(claims, time.Hour*24*1000)
