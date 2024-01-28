@@ -18,6 +18,7 @@ type AuthContextValue = {
   isLoading: boolean;
   error: string;
   login: (username: string, password: string) => void;
+  logout: () => void;
 };
 
 export const AuthContext = createContext({} as AuthContextValue);
@@ -47,7 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => false,
     () => true,
   );
-  const [token, setToken] = useLocalStorageState("authToken", {
+  const [token, setToken, { removeItem }] = useLocalStorageState("authToken", {
     defaultValue: "",
   });
   const [isInitialized, setIsInitialized] = useState(false);
@@ -68,13 +69,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsLoading(false);
       });
   }, []);
+  const logout = useCallback(() => {
+    removeItem();
+  }, []);
   useEffect(() => {
+    if (isSSR) {
+      return;
+    }
     if (token) {
       // TODO verify token
     }
-    if (!isSSR) {
-      setIsInitialized(true);
-    }
+    setIsInitialized(true);
   }, [token, isSSR]);
   const contextValue = useMemo(() => {
     return {
@@ -83,6 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading,
       error,
       login,
+      logout,
     } as AuthContextValue;
   }, [token, isLoading, isInitialized, error, login]);
 

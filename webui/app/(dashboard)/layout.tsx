@@ -1,19 +1,20 @@
 "use client";
 
-import { useAuth } from "@/lib/auth";
-import { Login } from "@/components/login";
+import { ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/auth";
 import Loading from "@/app/loading";
 
-export function Client() {
+export default function Layout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const auth = useAuth();
   if (!auth.isInitialized) {
     return <Loading />;
   }
   if (!auth.token) {
-    return <Login />;
+    router.push("/");
+    return null;
   }
-  router.push("/peers");
-  return null;
+  //TODO: layout
+  return <div>{children}</div>;
 }
