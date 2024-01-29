@@ -11,6 +11,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import useLocalStorageState from "use-local-storage-state";
+import { createToken, getUser } from "@/lib/api";
 
 type AuthContextValue = {
   token: string;
@@ -19,27 +20,11 @@ type AuthContextValue = {
   error: string;
   login: (username: string, password: string) => void;
   logout: () => void;
+  username: string;
 };
 
 export const AuthContext = createContext({} as AuthContextValue);
 
-async function apiLogin(username: string, password: string) {
-  const res = await fetch("/api/auth", {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({ username, password }),
-  });
-  if (!res.ok) {
-    throw new Error("Invalid username or password.");
-  }
-  const body = await res.json();
-  if (!body.token) {
-    throw new Error("Invalid response from server.");
-  }
-  return body;
-}
 export function AuthProvider({ children }: { children: ReactNode }) {
   const isSSR = useSyncExternalStore(
     () => {
@@ -54,13 +39,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isInitialized, setIsInitialized] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [username, setUsername] = useState("");
   const login = useCallback((username: string, password: string) => {
     setIsLoading(true);
     setToken("");
     setError("");
-    apiLogin(username, password)
-      .then((res) => {
-        setToken(res.token);
+    createToken(username, password)
+      .then((token) => {
+        setToken(token);
       })
       .catch((err) => {
         setError(err.message);
@@ -76,11 +62,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (isSSR) {
       return;
     }
-    if (token) {
-      // TODO verify token
+    if (!token) {
+      setIsInitialized(true);
+      return;
     }
-    setIsInitialized(true);
-  }, [token, isSSR]);
+    getUser(token)
+      .then((user) => {
+        setUsername(user.username);
+      })
+      .catch((err) => {
+        logout();
+      })
+      .finally(() => {
+        setIsInitialized(true);
+      });
+  }, [token, isSSR, logout]);
   const contextValue = useMemo(() => {
     return {
       token,
@@ -89,8 +85,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       error,
       login,
       logout,
+      username,
     } as AuthContextValue;
-  }, [token, isLoading, isInitialized, error, login]);
+  }, [token, isLoading, isInitialized, error, login, logout, username]);
 
   return (
     <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
