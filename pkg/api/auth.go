@@ -29,33 +29,33 @@ func (a *API) createAuth(w http.ResponseWriter, r *http.Request) {
 	var req AuthRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		a.sendError(w, "failed to decode request", http.StatusBadRequest)
+		a.sendError(w, "Failed to decode request.", http.StatusBadRequest)
 		return
 	}
 	if req.Username == "" || req.Password == "" {
-		a.sendError(w, "Username and Password are required", http.StatusBadRequest)
+		a.sendError(w, "Invalid username or password.", http.StatusBadRequest)
 		return
 	}
 	if req.Username != "admin" {
-		a.sendError(w, "invalid username", http.StatusBadRequest)
+		a.sendError(w, "Invalid username or password.", http.StatusBadRequest)
 		return
 	}
 	if a.cfg.WebuiAdminPasswordHash == "" {
-		a.sendError(w, "webui admin password is not set", http.StatusBadRequest)
+		a.sendError(w, "Webui admin password is not set.", http.StatusBadRequest)
 		return
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(a.cfg.WebuiAdminPasswordHash), []byte(req.Password))
 	if err != nil {
-		a.sendError(w, "invalid password", http.StatusBadRequest)
+		a.sendError(w, "Invalid username or password.", http.StatusBadRequest)
 		return
 	}
-	claims := map[string]any{"Username": req.Username}
+	claims := map[string]any{"username": req.Username}
 	jwtauth.SetIssuedNow(claims)
 	// set expiry to 1000 days
 	jwtauth.SetExpiryIn(claims, time.Hour*24*1000)
 	_, token, err := a.tokenAuth.Encode(claims)
 	if err != nil {
-		a.sendError(w, "failed to create token", http.StatusInternalServerError)
+		a.sendError(w, "Failed to create JWT.", http.StatusInternalServerError)
 		return
 	}
 	a.writeJSON(w, map[string]string{"token": token})
