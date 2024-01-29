@@ -4,16 +4,22 @@ import { useAuth } from "@/lib/auth";
 import { Login } from "@/components/login";
 import { useRouter } from "next/navigation";
 import Loading from "@/app/loading";
+import { Center } from "@/components/center";
+import { useEffect } from "react";
 
 export function Client() {
   const router = useRouter();
   const auth = useAuth();
-  if (!auth.isInitialized) {
-    return <Loading />;
-  }
-  if (!auth.token) {
+  useEffect(() => {
+    if (auth.token) {
+      router.push("/peers");
+    }
+  }, [auth.token, router]);
+
+  if (auth.isInitialized && !auth.token) {
+    router.prefetch("/peers");
     return <Login />;
   }
-  router.push("/peers");
-  return null;
+
+  return <Loading />;
 }

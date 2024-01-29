@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 import Loading from "@/app/loading";
@@ -8,13 +8,16 @@ import Loading from "@/app/loading";
 export default function Layout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const auth = useAuth();
-  if (!auth.isInitialized) {
+  useEffect(() => {
+    if (auth.isInitialized && !auth.token) {
+      router.push("/");
+    }
+  }, [auth.isInitialized, auth.token, router]);
+
+  if (!auth.isInitialized || !auth.token) {
     return <Loading />;
   }
-  if (!auth.token) {
-    router.push("/");
-    return null;
-  }
+
   //TODO: layout
   return <div>{children}</div>;
 }
