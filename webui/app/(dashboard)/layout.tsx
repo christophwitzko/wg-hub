@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 import Loading from "@/app/loading";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function Layout({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -24,9 +25,8 @@ export default function Layout({ children }: { children: ReactNode }) {
     <div className="flex gap-x-4 min-h-screen">
       <div className="flex flex-col gap-2 border border-red-600 p-5">
         <h1 className="text-xl pb-5 text-center">wg-hub</h1>
-        <Button>Logout</Button>
-        <Button>Logout</Button>
-        <Button>Logout</Button>
+        <Link href={"/peers"}>Peers</Link>
+        <Button onClick={() => auth.logout()}>Logout</Button>
         <div className="flex-grow"></div>
         <span>User: {auth.username}</span>
         <span>Version: xxxxxxxx</span>
