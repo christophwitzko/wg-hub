@@ -1,3 +1,7 @@
+"use client";
+
+import useSWR from "swr";
+
 async function fetchAPI(
   method: string,
   path: string,
@@ -35,6 +39,25 @@ export async function createToken(
   return authRes.token;
 }
 
-export async function getUser(token: string) {
+export type User = {
+  username: string;
+  iat: number;
+  exp: number;
+};
+export async function getUser(token: string): Promise<User> {
   return await fetchAPI("GET", "auth", token);
+}
+
+export type Peer = {
+  publicKey: string;
+  allowedIP: string;
+  endpoint: string;
+  lastHandshake: number;
+  txBytes: number;
+  rxBytes: number;
+};
+export function usePeers(token: string) {
+  return useSWR<Peer[]>("peers", () => fetchAPI("GET", "peers", token), {
+    refreshInterval: 1000,
+  });
 }
