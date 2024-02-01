@@ -3,6 +3,9 @@ const isDev = process.env.NODE_ENV !== "production";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "export",
+  env: {
+    VERSION: process.env.VERSION || "0.0.0-dev",
+  },
   ...(isDev
     ? {
         rewrites() {

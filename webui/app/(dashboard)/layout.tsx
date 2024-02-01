@@ -20,18 +20,18 @@ export default function Layout({ children }: { children: ReactNode }) {
     return <Loading />;
   }
 
-  //TODO: layout
   return (
     <div className="flex gap-x-4 min-h-screen">
-      <div className="flex flex-col gap-2 border border-red-600 p-5">
-        <h1 className="text-xl pb-5 text-center">wg-hub</h1>
-        <Link href={"/peers"}>Peers</Link>
-        <Button onClick={() => auth.logout()}>Logout</Button>
+      <div className="flex flex-col gap-2 p-8 border-r shrink-0">
+        <h1 className="text-3xl pb-5 text-center border-b">wg-hub</h1>
+        <Link className="bg-secondary rounded-md p-1" href={"/peers"}>
+          Peers
+        </Link>
         <div className="flex-grow"></div>
-        <span>User: {auth.username}</span>
-        <span>Version: xxxxxxxx</span>
+        <Button onClick={() => auth.logout()}>Logout</Button>
+        <span>Version: {process.env.VERSION}</span>
       </div>
-      <div className="border border-green-600 flex-grow p-5">{children}</div>
+      <div className="flex-grow p-8">{children}</div>
     </div>
   );
 }
