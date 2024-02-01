@@ -50,11 +50,11 @@ function SortIcon({
 }) {
   switch (sortDirection) {
     case "asc":
-      return <ArrowDownAZ className="ml-2 h-4 w-4" />;
+      return <ArrowDownAZ className="ml-2 size-4" />;
     case "desc":
-      return <ArrowUpAZ className="ml-2 h-4 w-4" />;
+      return <ArrowUpAZ className="ml-2 size-4" />;
     default:
-      return <ArrowUpDown className="ml-2 h-4 w-4" />;
+      return <ArrowUpDown className="ml-2 size-4" />;
   }
 }
 
@@ -186,12 +186,12 @@ export function PeersTable({
     <div className="w-full">
       <div className="flex items-center py-4">
         {isLoading ? (
-          <Loader2 className="h-6 w-6 animate-spin text-primary/50" />
+          <Loader2 className="size-6 animate-spin text-primary/50" />
         ) : null}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown className="ml-2 h-4 w-4" />
+              Columns <ChevronDown className="ml-2 size-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
