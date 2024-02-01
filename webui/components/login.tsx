@@ -46,7 +46,7 @@ export function Login() {
             </div>
             {auth.error && (
               <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
+                <AlertCircle className="size-4" />
                 <AlertTitle>Error</AlertTitle>
                 <AlertDescription>{auth.error}</AlertDescription>
               </Alert>
