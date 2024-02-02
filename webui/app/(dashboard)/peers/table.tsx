@@ -7,8 +7,6 @@ import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
@@ -19,6 +17,7 @@ import {
   ArrowDownAZ,
   ArrowUpAZ,
   Loader2,
+  Plus,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import prettyBytes from "pretty-bytes";
@@ -58,13 +57,22 @@ function SortIcon({
   }
 }
 
-function SortButton({ name, column }: { name: string; column: Column<Peer> }) {
+const columnNames = {
+  publicKey: "Public Key",
+  allowedIP: "Allowed IP",
+  endpoint: "Endpoint",
+  lastHandshake: "Last Handshake",
+  txBytes: "Transmitted Bytes",
+  rxBytes: "Received Bytes",
+} as Record<string, string>;
+
+function SortButton({ column }: { column: Column<Peer> }) {
   return (
     <Button
       variant="ghost"
       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
     >
-      {name}
+      {columnNames[column.id]}
       <SortIcon sortDirection={column.getIsSorted()} />
     </Button>
   );
@@ -79,28 +87,28 @@ export const columns: ColumnDef<Peer>[] = [
     accessorKey: "publicKey",
     accessorFn: (peer) => peer.publicKey.slice(0, 16) + "...",
     sortingFn: stringSort,
-    header: ({ column }) => <SortButton name="Public Key" column={column} />,
+    header: ({ column }) => <SortButton column={column} />,
     cell: ({ row }) => (
-      <div className="font-mono">{row.getValue("publicKey")}</div>
+      <div className="font-mono whitespace-nowrap">
+        {row.getValue("publicKey")}
+      </div>
     ),
   },
   {
     accessorKey: "allowedIP",
-    header: ({ column }) => <SortButton name="Allowed IP" column={column} />,
+    header: ({ column }) => <SortButton column={column} />,
     cell: ({ row }) => <div>{row.getValue("allowedIP")}</div>,
   },
   {
     accessorKey: "endpoint",
-    header: ({ column }) => <SortButton name="Endpoint" column={column} />,
+    header: ({ column }) => <SortButton column={column} />,
     cell: ({ row }) => <div>{row.getValue("endpoint")}</div>,
   },
   {
     accessorKey: "lastHandshake",
     accessorFn: (peer) => new Date(peer.lastHandshake * 1000),
     sortingFn: "datetime",
-    header: ({ column }) => (
-      <SortButton name="Last Handshake" column={column} />
-    ),
+    header: ({ column }) => <SortButton column={column} />,
     cell: ({ row }) => {
       const lastHandshake = row.getValue("lastHandshake") as Date;
       return (
@@ -115,9 +123,7 @@ export const columns: ColumnDef<Peer>[] = [
   {
     accessorKey: "txBytes",
     sortingFn: "basic",
-    header: ({ column }) => (
-      <SortButton name="Transmitted Bytes" column={column} />
-    ),
+    header: ({ column }) => <SortButton column={column} />,
     cell: ({ row }) => (
       <div className="text-right">{prettyBytes(row.getValue("txBytes"))}</div>
     ),
@@ -125,9 +131,7 @@ export const columns: ColumnDef<Peer>[] = [
   {
     accessorKey: "rxBytes",
     sortingFn: "basic",
-    header: ({ column }) => (
-      <SortButton name="Received Bytes" column={column} />
-    ),
+    header: ({ column }) => <SortButton column={column} />,
     cell: ({ row }) => (
       <div className="text-right">{prettyBytes(row.getValue("rxBytes"))}</div>
     ),
@@ -174,9 +178,7 @@ export function PeersTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
     initialState: {
       sorting: [{ id: "publicKey", desc: false }],
     },
@@ -185,8 +187,11 @@ export function PeersTable({
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
+        <Button variant="outline">
+          Add Peer <Plus className="ml-2 size-4" />
+        </Button>
         {isLoading ? (
-          <Loader2 className="size-6 animate-spin text-primary/50" />
+          <Loader2 className="ml-6 size-6 animate-spin text-primary/50" />
         ) : null}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -206,7 +211,7 @@ export function PeersTable({
                     checked={column.getIsVisible()}
                     onCheckedChange={(value) => column.toggleVisibility(value)}
                   >
-                    {column.id}
+                    {columnNames[column.id]}
                   </DropdownMenuCheckboxItem>
                 );
               })}
