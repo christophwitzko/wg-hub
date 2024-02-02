@@ -8,12 +8,11 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/christophwitzko/wg-hub/pkg/webui"
-
 	"github.com/christophwitzko/wg-hub/pkg/config"
 	"github.com/christophwitzko/wg-hub/pkg/debug"
 	"github.com/christophwitzko/wg-hub/pkg/hub"
 	"github.com/christophwitzko/wg-hub/pkg/loopback"
+	"github.com/christophwitzko/wg-hub/pkg/webui"
 	"github.com/christophwitzko/wg-hub/pkg/wgconn"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
