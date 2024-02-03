@@ -11,12 +11,12 @@ import (
 )
 
 func (a *API) listPeers(w http.ResponseWriter, _ *http.Request) {
-	decConfig, err := a.dev.IpcGet()
+	devConfig, err := a.dev.IpcGet()
 	if err != nil {
 		a.sendError(w, "failed to get ipc operation", http.StatusInternalServerError)
 		return
 	}
-	a.writeJSON(w, ipc.ParsePeers(decConfig))
+	a.writeJSON(w, ipc.ParsePeers(devConfig))
 }
 
 type AddPeerRequest struct {

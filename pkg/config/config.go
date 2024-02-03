@@ -115,16 +115,17 @@ func SetFlags(cmd *cobra.Command) {
 }
 
 type Config struct {
-	PrivateKeyHex          string
-	PrivateKey             wgtypes.Key
-	Port                   uint16
-	BindAddress            string
-	Peers                  []*Peer
-	HubAddress             string
-	DebugServer            bool
-	Webui                  bool
-	WebuiJWTSecret         string
-	WebuiAdminPasswordHash string
+	PrivateKeyHex          string      `yaml:"-"`
+	PrivateKey             wgtypes.Key `yaml:"-"`
+	Port                   uint16      `yaml:"port"`
+	BindAddress            string      `yaml:"bindAddress,omitempty"`
+	LogLevel               string      `yaml:"logLevel"`
+	HubAddress             string      `yaml:"hubAddress,omitempty"`
+	DebugServer            bool        `yaml:"debugServer,omitempty"`
+	Webui                  bool        `yaml:"webui,omitempty"`
+	WebuiJWTSecret         string      `yaml:"webuiJWTSecret,omitempty"`
+	WebuiAdminPasswordHash string      `yaml:"webuiAdminPasswordHash,omitempty"`
+	Peers                  []*Peer     `yaml:"peers"`
 }
 
 func (c *Config) GetPort() string {
@@ -172,7 +173,11 @@ func ParseConfig(log *logrus.Logger, cmd *cobra.Command) (*Config, error) {
 		return nil, fmt.Errorf("failed to parse peers from config: %w", err)
 	}
 	for _, peer := range configPeers {
-		inputPeers = append(inputPeers, fmt.Sprintf("%s,%s", peer["publickey"], peer["allowedips"]))
+		allowedIP := peer["allowedip"]
+		if allowedIP == "" {
+			allowedIP = peer["allowedips"]
+		}
+		inputPeers = append(inputPeers, fmt.Sprintf("%s,%s", peer["publickey"], allowedIP))
 	}
 	if len(inputPeers) == 0 {
 		return nil, fmt.Errorf("at least one peer is required")
@@ -193,11 +198,12 @@ func ParseConfig(log *logrus.Logger, cmd *cobra.Command) (*Config, error) {
 		PrivateKey:             wgPrivateKey,
 		Port:                   port,
 		BindAddress:            bindAddr,
-		Peers:                  peers,
+		LogLevel:               viper.GetString("logLevel"),
 		HubAddress:             viper.GetString("hubAddress"),
 		DebugServer:            viper.GetBool("debugServer"),
 		Webui:                  viper.GetBool("webui"),
 		WebuiJWTSecret:         viper.GetString("webuiJWTSecret"),
 		WebuiAdminPasswordHash: viper.GetString("webuiAdminPasswordHash"),
+		Peers:                  peers,
 	}, nil
 }
