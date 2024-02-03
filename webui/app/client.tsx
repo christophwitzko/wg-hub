@@ -4,7 +4,6 @@ import { useAuth } from "@/lib/auth";
 import { Login } from "@/components/login";
 import { useRouter } from "next/navigation";
 import Loading from "@/app/loading";
-import { Center } from "@/components/center";
 import { useEffect } from "react";
 
 export function Client() {
