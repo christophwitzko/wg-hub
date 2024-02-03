@@ -61,3 +61,13 @@ export function usePeers(token: string) {
     refreshInterval: 1000,
   });
 }
+
+export type Config = {
+  config: string;
+};
+
+export function useConfig(token: string) {
+  return useSWR<Config>("config", () => fetchAPI("GET", "config", token), {
+    refreshInterval: 1000,
+  });
+}
