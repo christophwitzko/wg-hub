@@ -9,9 +9,9 @@ import (
 )
 
 type Peer struct {
-	PublicKey    string
-	PublicKeyHex string
-	AllowedIP    string
+	PublicKey    string `yaml:"publicKey"`
+	PublicKeyHex string `yaml:"-"`
+	AllowedIP    string `yaml:"allowedIP"`
 }
 
 func NormalizeAllowedIP(ip string) (string, error) {

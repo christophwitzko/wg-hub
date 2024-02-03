@@ -108,6 +108,9 @@ func (a *API) initRoutes() {
 		r.Get("/peers", a.listPeers)
 		r.Post("/peers", a.addPeer)
 		r.Delete("/peers/*", a.removePeer)
+
+		// config api
+		r.Get("/config", a.getConfig)
 	})
 }
 
