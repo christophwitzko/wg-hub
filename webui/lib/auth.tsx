@@ -13,7 +13,7 @@ import {
 import useLocalStorageState from "use-local-storage-state";
 import { createToken, getUser } from "@/lib/api";
 
-type AuthContextValue = {
+export type AuthContextType = {
   token: string;
   isInitialized: boolean;
   isLoading: boolean;
@@ -23,7 +23,7 @@ type AuthContextValue = {
   username: string;
 };
 
-export const AuthContext = createContext({} as AuthContextValue);
+export const AuthContext = createContext({} as AuthContextType);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const isSSR = useSyncExternalStore(
@@ -86,7 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       logout,
       username,
-    } as AuthContextValue;
+    } as AuthContextType;
   }, [token, isLoading, isInitialized, error, login, logout, username]);
 
   return (
