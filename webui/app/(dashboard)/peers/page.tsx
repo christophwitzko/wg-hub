@@ -14,7 +14,7 @@ export default function Peers() {
         <Alert variant="destructive">
           <AlertCircle className="size-4" />
           <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
+          <AlertDescription>{error.toString()}</AlertDescription>
         </Alert>
       )}
       <PeersTable data={data || []} isLoading={isValidating} />

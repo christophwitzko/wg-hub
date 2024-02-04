@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import {
   Row,
   Column,
@@ -17,7 +16,6 @@ import {
   ArrowDownAZ,
   ArrowUpAZ,
   Loader2,
-  Plus,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import prettyBytes from "pretty-bytes";
@@ -29,7 +27,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -41,6 +38,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Peer } from "@/lib/api";
+import { AddPeer } from "./add-peer";
 
 function SortIcon({
   sortDirection,
@@ -187,9 +185,7 @@ export function PeersTable({
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
-        <Button variant="outline">
-          Add Peer <Plus className="ml-2 size-4" />
-        </Button>
+        <AddPeer />
         {isLoading ? (
           <Loader2 className="ml-6 size-6 animate-spin text-primary/50" />
         ) : null}
@@ -258,7 +254,7 @@ export function PeersTable({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  No peers found.
                 </TableCell>
               </TableRow>
             )}
