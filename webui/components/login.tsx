@@ -35,6 +35,7 @@ export function Login() {
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
       username: "admin",
+      password: "",
     },
   });
   const auth = useAuth();

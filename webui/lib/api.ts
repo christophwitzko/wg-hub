@@ -71,3 +71,10 @@ export function useConfig(token: string) {
     refreshInterval: 1000,
   });
 }
+
+export async function addPeer(
+  token: string,
+  peer: { publicKey: string; allowedIP: string },
+): Promise<void> {
+  await fetchAPI("POST", "peers", token, peer);
+}
