@@ -78,3 +78,10 @@ export async function addPeer(
 ): Promise<void> {
   await fetchAPI("POST", "peers", token, peer);
 }
+
+export async function removePeer(
+  token: string,
+  publicKey: string,
+): Promise<void> {
+  await fetchAPI("DELETE", `peers/${publicKey}`, token);
+}
