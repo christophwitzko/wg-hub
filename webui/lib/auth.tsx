@@ -40,6 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [username, setUsername] = useState("");
+
   const login = useCallback((username: string, password: string) => {
     setIsLoading(true);
     setToken("");
@@ -55,9 +56,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsLoading(false);
       });
   }, []);
+
   const logout = useCallback(() => {
     removeItem();
   }, []);
+
   useEffect(() => {
     if (isSSR) {
       return;
@@ -77,6 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsInitialized(true);
       });
   }, [token, isSSR, logout]);
+
   const contextValue = useMemo(() => {
     return {
       token,
