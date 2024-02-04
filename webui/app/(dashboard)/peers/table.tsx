@@ -7,15 +7,8 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDown, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -26,7 +19,7 @@ import {
 } from "@/components/ui/table";
 import { Peer } from "@/lib/api";
 import { AddPeer } from "./add-peer";
-import { columnNames, getColumns } from "./columns";
+import { getColumns } from "./columns";
 
 import { useAuth } from "@/lib/auth";
 import { ColumnToggle } from "@/app/(dashboard)/peers/column-toggle";
