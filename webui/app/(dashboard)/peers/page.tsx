@@ -17,7 +17,7 @@ export default function Peers() {
           <AlertDescription>{error.toString()}</AlertDescription>
         </Alert>
       )}
-      {data && <PeersTable data={data} isLoading={isValidating} />}
+      <PeersTable data={data!} isLoading={isValidating} />
     </div>
   );
 }

@@ -55,10 +55,13 @@ export type Peer = {
   lastHandshake: number;
   txBytes: number;
   rxBytes: number;
+  isHub: boolean;
+  isRequester: boolean;
 };
 export function usePeers(token: string) {
   return useSWR<Peer[]>("peers", () => fetchAPI("GET", "peers", token), {
     refreshInterval: 1000,
+    fallbackData: [],
   });
 }
 

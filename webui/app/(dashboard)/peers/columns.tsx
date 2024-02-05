@@ -3,7 +3,6 @@ import { formatDistanceToNow } from "date-fns";
 import prettyBytes from "pretty-bytes";
 
 import { Peer } from "@/lib/api";
-import { AuthContextType } from "@/lib/auth";
 import { DataTableColumnHeader } from "@/components/ui/data-table";
 import { CellActions } from "./cell-actions";
 
