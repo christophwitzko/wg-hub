@@ -18,6 +18,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -64,13 +65,17 @@ export function CellActions({ row }: { row: Row<Peer> }) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={() => navigator.clipboard.writeText(peer.publicKey)}
           >
             Copy Public Key
           </DropdownMenuItem>
           <DialogTrigger asChild>
-            <DropdownMenuItem className="text-destructive">
+            <DropdownMenuItem
+              className="text-destructive"
+              disabled={peer.isHub || peer.isRequester}
+            >
               Delete Peer
             </DropdownMenuItem>
           </DialogTrigger>
@@ -80,7 +85,7 @@ export function CellActions({ row }: { row: Row<Peer> }) {
         <DialogHeader>
           <DialogTitle>Delete Peer</DialogTitle>
           <DialogDescription className="grid gap-4 pt-3">
-            Do you really want to delete the peer with the following public key?
+            Do you really want to delete the peer with the following peer?
             <div className="font-mono">{peer.publicKey}</div> This action cannot
             be undone.
             {error && (
@@ -93,7 +98,12 @@ export function CellActions({ row }: { row: Row<Peer> }) {
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button type="submit" variant="destructive" onClick={deletePeer}>
+          <Button
+            type="submit"
+            variant="destructive"
+            disabled={isLoading}
+            onClick={deletePeer}
+          >
             Delete
           </Button>
         </DialogFooter>
