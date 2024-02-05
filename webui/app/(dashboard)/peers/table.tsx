@@ -20,9 +20,7 @@ import {
 import { Peer } from "@/lib/api";
 import { AddPeer } from "./add-peer";
 import { getColumns } from "./columns";
-
-import { useAuth } from "@/lib/auth";
-import { ColumnToggle } from "@/app/(dashboard)/peers/column-toggle";
+import { ColumnToggle } from "./column-toggle";
 
 export function PeersTable({
   data,
@@ -31,8 +29,7 @@ export function PeersTable({
   data: Peer[];
   isLoading?: boolean;
 }) {
-  const auth = useAuth();
-  const columns = useMemo(() => getColumns({ auth }), [auth]);
+  const columns = useMemo(() => getColumns(), []);
   const table = useReactTable({
     data,
     columns,

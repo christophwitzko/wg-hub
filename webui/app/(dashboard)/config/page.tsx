@@ -21,7 +21,7 @@ export default function Peers() {
       )}
       <h1 className="text-2xl">wireguard-hub.yaml</h1>
       <Textarea
-        className="disabled:cursor-auto disabled:opacity-100 flex-grow"
+        className="disabled:cursor-auto disabled:opacity-100 flex-grow font-mono"
         value={config}
         disabled
       />
