@@ -27,7 +27,7 @@ func Init(log *logrus.Logger, dev *device.Device, cfg *config.Config) (func(), *
 
 	wgConf := &bytes.Buffer{}
 	wgConf.WriteString("public_key=" + config.MustGet(ipc.Base64ToHex(pKey.PublicKey().String())) + "\n")
-	wgConf.WriteString("allowed_ip=" + cfg.HubAddress + "/32\n")
+	wgConf.WriteString("allowed_ip=" + cfg.GetHubAddress() + "\n")
 	err = dev.IpcSetOperation(wgConf)
 	if err != nil {
 		closeFn()

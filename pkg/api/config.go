@@ -18,7 +18,7 @@ func (a *API) getConfig(w http.ResponseWriter, _ *http.Request) {
 	peers := ipc.ParsePeers(devConfig)
 	currentPeers := make([]*config.Peer, 0)
 	for _, peer := range peers {
-		if peer.AllowedIP == a.cfg.HubAddress+"/32" {
+		if peer.AllowedIP == a.cfg.GetHubAddress() {
 			continue
 		}
 		currentPeers = append(currentPeers, &config.Peer{
