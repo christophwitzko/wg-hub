@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
 
 	"github.com/christophwitzko/wg-hub/pkg/config"
@@ -10,13 +11,35 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func (a *API) listPeers(w http.ResponseWriter, _ *http.Request) {
+type Peer struct {
+	*ipc.Peer
+	IsHub       bool `json:"isHub"`
+	IsRequester bool `json:"isRequester"`
+}
+
+func (a *API) listPeers(w http.ResponseWriter, r *http.Request) {
 	devConfig, err := a.dev.IpcGet()
 	if err != nil {
 		a.sendError(w, "failed to get ipc operation", http.StatusInternalServerError)
 		return
 	}
-	a.writeJSON(w, ipc.ParsePeers(devConfig))
+	remoteIP, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		a.sendError(w, "failed to parse remote address", http.StatusInternalServerError)
+		return
+	}
+	hubIP := a.cfg.GetHubAddress()
+	ipcPeers := ipc.ParsePeers(devConfig)
+	peers := make([]*Peer, len(ipcPeers))
+	for i, peer := range ipcPeers {
+		peers[i] = &Peer{
+			Peer:        peer,
+			IsHub:       peer.AllowedIP == hubIP,
+			IsRequester: peer.AllowedIP == remoteIP+"/32",
+		}
+	}
+
+	a.writeJSON(w, peers)
 }
 
 type AddPeerRequest struct {
@@ -25,6 +48,9 @@ type AddPeerRequest struct {
 }
 
 func (a *API) addPeer(w http.ResponseWriter, r *http.Request) {
+	a.ipcMutex.Lock()
+	defer a.ipcMutex.Unlock()
+
 	defer r.Body.Close()
 	var req AddPeerRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
@@ -64,6 +90,9 @@ func (a *API) addPeer(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *API) removePeer(w http.ResponseWriter, r *http.Request) {
+	a.ipcMutex.Lock()
+	defer a.ipcMutex.Unlock()
+
 	peerPublicKeyHex, err := ipc.Base64ToHex(chi.URLParam(r, "*"))
 	if err != nil {
 		a.sendError(w, "failed to decode peer public key", http.StatusBadRequest)

@@ -140,6 +140,10 @@ func (c *Config) ResolvedBindAddr() string {
 	return addr.String()
 }
 
+func (c *Config) GetHubAddress() string {
+	return c.HubAddress + "/32"
+}
+
 func ParseConfig(log *logrus.Logger, cmd *cobra.Command) (*Config, error) {
 	privateKey := viper.GetString("privateKey")
 	if privateKey == "" {

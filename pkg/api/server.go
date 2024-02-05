@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"sync"
 
 	"github.com/christophwitzko/wg-hub/pkg/config"
 	"github.com/go-chi/chi/v5"
@@ -20,6 +21,7 @@ type API struct {
 	dev       *device.Device
 	cfg       *config.Config
 	tokenAuth *jwtauth.JWTAuth
+	ipcMutex  sync.Mutex
 }
 
 func NewAPIServer(log *logrus.Logger, dev *device.Device, cfg *config.Config) *API {
