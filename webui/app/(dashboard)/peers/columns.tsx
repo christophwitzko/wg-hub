@@ -30,11 +30,14 @@ export function getColumns(): ColumnDef<Peer>[] {
     {
       id: "badges",
       enableHiding: false,
+      header: () => <span>Status</span>,
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
           {row.original.lastHandshake === 0 ? (
             <Badge className="text-destructive">Offline</Badge>
-          ) : null}
+          ) : (
+            <Badge className="text-online">Online</Badge>
+          )}
           {row.original.isHub ? <Badge>Hub</Badge> : null}
           {row.original.isRequester ? <Badge>You</Badge> : null}
         </div>
@@ -71,7 +74,7 @@ export function getColumns(): ColumnDef<Peer>[] {
       cell: ({ row }) => {
         const lastHandshake = row.getValue("lastHandshake") as Date;
         return (
-          <div className="text-right">
+          <div className="text-right whitespace-nowrap">
             {lastHandshake.getTime() === 0
               ? "Never"
               : formatDistanceToNow(lastHandshake) + " ago"}

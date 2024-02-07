@@ -37,6 +37,9 @@ export function PeersTable({
     getSortedRowModel: getSortedRowModel(),
     initialState: {
       sorting: [{ id: "publicKey", desc: false }],
+      columnVisibility: {
+        endpoint: false,
+      },
     },
   });
 

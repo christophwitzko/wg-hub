@@ -70,7 +70,7 @@ export function Login() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type="password" {...field} />
+                      <Input type="password" {...field} autoFocus />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
