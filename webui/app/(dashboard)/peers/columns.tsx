@@ -5,6 +5,7 @@ import prettyBytes from "pretty-bytes";
 import { Peer } from "@/lib/api";
 import { DataTableColumnHeader } from "@/components/ui/data-table";
 import { CellActions } from "./cell-actions";
+import { Badge } from "@/components/ui/badge";
 
 export const columnNames = {
   publicKey: "Public Key",
@@ -26,6 +27,19 @@ function header({ column }: { column: Column<Peer> }) {
 
 export function getColumns(): ColumnDef<Peer>[] {
   return [
+    {
+      id: "badges",
+      enableHiding: false,
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+          {row.original.lastHandshake === 0 ? (
+            <Badge className="text-destructive">Offline</Badge>
+          ) : null}
+          {row.original.isHub ? <Badge>Hub</Badge> : null}
+          {row.original.isRequester ? <Badge>You</Badge> : null}
+        </div>
+      ),
+    },
     {
       id: "publicKey",
       accessorKey: "publicKey",
