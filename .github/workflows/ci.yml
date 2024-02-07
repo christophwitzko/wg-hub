@@ -15,16 +15,25 @@ jobs:
       - uses: actions/setup-go@v4
         with:
           go-version: '1.21'
+      - run: mkdir webui/out && touch webui/out/index.html
       - uses: golangci/golangci-lint-action@v3
+  lint-webui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+      - run: ./scripts/lint-webui.sh
 
   test:
     runs-on: ubuntu-latest
-    needs: lint
+    needs: [lint, lint-webui]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v4
         with:
           go-version: '1.21'
+      - uses: oven-sh/setup-bun@v1
+      - run: ./scripts/build-webui.sh 0.0.0-dev
       - run: go build ./cmd/wg-hub/
         env:
           CGO_ENABLED: 0
