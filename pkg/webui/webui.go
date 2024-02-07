@@ -27,8 +27,7 @@ func newServer(log *logrus.Logger, dev *device.Device, cfg *config.Config) *Serv
 		cfg:    cfg,
 		api:    api.NewAPIServer(log, dev, cfg),
 	}
-	fs := http.FileServer(http.Dir("webui/out"))
-	w.router.Get("/*", fs.ServeHTTP)
+	w.router.Get("/*", getWebuiServer())
 	w.router.Mount("/api", w.api)
 	return w
 }
