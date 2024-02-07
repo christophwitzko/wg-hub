@@ -41,6 +41,7 @@ jobs:
       - uses: actions/setup-go@v4
         with:
           go-version: '1.21'
+      - uses: oven-sh/setup-bun@v1
       - uses: docker/login-action@v2
         with:
           registry: ghcr.io
