@@ -1,3 +1,7 @@
+before:
+  hooks:
+    - ./scripts/build-webui.sh {{.Version}}
+
 builds:
   - env:
       - CGO_ENABLED=0

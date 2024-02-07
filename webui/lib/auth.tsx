@@ -41,25 +41,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState("");
   const [username, setUsername] = useState("");
 
-  const login = useCallback((username: string, password: string) => {
-    setIsLoading(true);
-    setToken("");
-    setError("");
-    createToken(username, password)
-      .then((token) => {
-        setToken(token);
-      })
-      .catch((err) => {
-        setError(err.message);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, []);
+  const login = useCallback(
+    (username: string, password: string) => {
+      setIsLoading(true);
+      setToken("");
+      setError("");
+      createToken(username, password)
+        .then((token) => {
+          setToken(token);
+        })
+        .catch((err) => {
+          setError(err.message);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    },
+    [setToken],
+  );
 
   const logout = useCallback(() => {
     removeItem();
-  }, []);
+  }, [removeItem]);
 
   useEffect(() => {
     if (isSSR) {
