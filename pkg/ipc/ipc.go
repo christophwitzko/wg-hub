@@ -3,6 +3,7 @@ package ipc
 import (
 	"encoding/base64"
 	"encoding/hex"
+	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -13,7 +14,11 @@ func Base64ToHex(b64 string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return hex.EncodeToString(decKey), nil
+	hexKey := hex.EncodeToString(decKey)
+	if len(hexKey) != 64 {
+		return "", fmt.Errorf("invalid key length: %d != 64", len(hexKey))
+	}
+	return hexKey, nil
 }
 
 func HexToBase64(hexKey string) (string, error) {
