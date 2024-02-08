@@ -1,13 +1,21 @@
 "use client";
 
 import { ReactNode, useEffect } from "react";
+import { FileCog, LogOut, Network, Sun, Moon } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
+import { useTheme } from "next-themes";
+
 import { useAuth } from "@/lib/auth";
+import { cn } from "@/lib/utils";
 import Loading from "@/app/loading";
 import { Button, buttonVariants } from "@/components/ui/button";
-import Link from "next/link";
-import { cn } from "@/lib/utils";
-import { FileCog, LogOut, Network, Sun, Moon } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const navItems = [
   {
@@ -23,6 +31,7 @@ const navItems = [
 ] as const;
 
 export default function Layout({ children }: { children: ReactNode }) {
+  const { setTheme } = useTheme();
   const router = useRouter();
   const pathname = usePathname();
   const auth = useAuth();
@@ -65,10 +74,36 @@ export default function Layout({ children }: { children: ReactNode }) {
         })}
         <div className="flex-grow"></div>
         <Button onClick={() => auth.logout()} variant="ghost">
-          <LogOut className="mr-2 h-4 w-4" />
+          <LogOut className="mr-2 size-4" />
           Logout
         </Button>
-        <div className="text-primary/40 text-center">{process.env.VERSION}</div>
+        <div className="flex justify-between gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon">
+                <Sun className="size-5 scale-100 dark:scale-0" />
+                <Moon className="absolute size-5 scale-0 dark:scale-100" />
+                <span className="sr-only">Toggle theme</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setTheme("light")}>
+                Light
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("dark")}>
+                Dark
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("system")}>
+                System
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <div className="flex justify-center">
+            <span className="text-primary/40 text-center my-auto">
+              v{process.env.VERSION}
+            </span>
+          </div>
+        </div>
       </nav>
       <div className="flex-grow p-8">{children}</div>
     </div>

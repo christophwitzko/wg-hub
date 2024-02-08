@@ -85,7 +85,7 @@ export function CellActions({ row }: { row: Row<Peer> }) {
         <DialogHeader>
           <DialogTitle>Delete Peer</DialogTitle>
           <DialogDescription className="grid gap-4 pt-3">
-            Do you really want to delete the peer with the following peer?
+            Do you really want to delete the peer with the following public key?
             <div className="font-mono">{peer.publicKey}</div> This action cannot
             be undone.
             {error && (
