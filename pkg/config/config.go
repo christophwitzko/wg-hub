@@ -144,6 +144,7 @@ func (c *Config) GetHubAddress() string {
 	return c.HubAddress + "/32"
 }
 
+//gocyclo:ignore
 func ParseConfig(log *logrus.Logger, cmd *cobra.Command) (*Config, error) {
 	privateKey := viper.GetString("privateKey")
 	if privateKey == "" {
@@ -193,11 +194,9 @@ func ParseConfig(log *logrus.Logger, cmd *cobra.Command) (*Config, error) {
 			return nil, fmt.Errorf("failed to parse peer %d: %w", i, err)
 		}
 		peers[i] = p
-		log.Infof("adding %s", p)
 	}
 
-	// TODO: check ip ranges overlap
-	return &Config{
+	c := &Config{
 		PrivateKeyHex:          privateKeyHex,
 		PrivateKey:             wgPrivateKey,
 		Port:                   port,
@@ -209,5 +208,29 @@ func ParseConfig(log *logrus.Logger, cmd *cobra.Command) (*Config, error) {
 		WebuiJWTSecret:         viper.GetString("webuiJWTSecret"),
 		WebuiAdminPasswordHash: viper.GetString("webuiAdminPasswordHash"),
 		Peers:                  peers,
-	}, nil
+	}
+
+	for _, a := range peers {
+		hubOverlap, err := CheckIPOverlap(a.AllowedIP, c.GetHubAddress())
+		if err != nil {
+			return nil, fmt.Errorf("failed to check ip overlap: %w", err)
+		}
+		if hubOverlap {
+			return nil, fmt.Errorf("hub address overlaps with %s", a)
+		}
+		for _, b := range peers {
+			if a == b {
+				continue
+			}
+			overlap, err := CheckIPOverlap(a.AllowedIP, b.AllowedIP)
+			if err != nil {
+				return nil, fmt.Errorf("failed to check ip overlap: %w", err)
+			}
+			if overlap {
+				return nil, fmt.Errorf("ip ranges overlap for %s and %s", a, b)
+			}
+		}
+		log.Infof("adding %s", a)
+	}
+	return c, nil
 }

@@ -28,6 +28,18 @@ func NormalizeAllowedIP(ip string) (string, error) {
 	return ipPrefix.String(), nil
 }
 
+func CheckIPOverlap(a, b string) (bool, error) {
+	aNet, err := netip.ParsePrefix(a)
+	if err != nil {
+		return false, err
+	}
+	bNet, err := netip.ParsePrefix(b)
+	if err != nil {
+		return false, err
+	}
+	return aNet.Overlaps(bNet), nil
+}
+
 func NewPeer(peerConfig string) (*Peer, error) {
 	publicKey, ip, ok := strings.Cut(peerConfig, ",")
 	if !ok {
