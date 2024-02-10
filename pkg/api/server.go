@@ -113,6 +113,9 @@ func (a *API) initRoutes() {
 
 		// config api
 		r.Get("/config", a.getConfig)
+
+		// hub api
+		r.Get("/hub", a.getHubInfo)
 	})
 }
 
