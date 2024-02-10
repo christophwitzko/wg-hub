@@ -5,6 +5,7 @@ import { AlertCircle } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useConfig } from "@/lib/api";
+import { Code } from "@/components/code";
 
 export default function Peers() {
   const auth = useAuth();
@@ -20,11 +21,7 @@ export default function Peers() {
         </Alert>
       )}
       <h1 className="text-2xl">wireguard-hub.yaml</h1>
-      <Textarea
-        className="disabled:cursor-auto disabled:opacity-100 flex-grow font-mono"
-        value={config}
-        disabled
-      />
+      <Code className="flex-grow" value={config} />
       <Button
         className="ml-auto"
         onClick={() => navigator.clipboard.writeText(config)}
