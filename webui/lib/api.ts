@@ -79,7 +79,7 @@ export async function addPeer(
   token: string,
   peer: { publicKey: string; allowedIP: string },
 ): Promise<void> {
-  await fetchAPI("POST", "peers", token, peer);
+  await fetchAPI("PUT", `peers/${peer.publicKey}`, token, peer);
 }
 
 export async function removePeer(

@@ -49,7 +49,6 @@ func (a *API) listPeers(w http.ResponseWriter, r *http.Request) {
 }
 
 type AddPeerRequest struct {
-	PublicKey string `json:"publicKey"`
 	AllowedIP string `json:"allowedIP"`
 }
 
@@ -66,11 +65,11 @@ func (a *API) addPeer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.PublicKey == "" || req.AllowedIP == "" {
-		a.sendError(w, "publicKey and allowedIP are required", http.StatusBadRequest)
+	if req.AllowedIP == "" {
+		a.sendError(w, "allowedIP required", http.StatusBadRequest)
 		return
 	}
-	publicKeyHex, err := ipc.Base64ToHex(req.PublicKey)
+	publicKeyHex, err := ipc.Base64ToHex(chi.URLParam(r, "*"))
 	if err != nil {
 		a.sendError(w, "failed to decode peer public key", http.StatusBadRequest)
 		return

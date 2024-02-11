@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Base64 } from "js-base64";
 
 import { useAuth } from "@/lib/auth";
 import {
@@ -30,8 +31,8 @@ import { addPeer } from "@/lib/api";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const addPeerFormSchema = z.object({
-  publicKey: z.string().min(1).max(50),
-  allowedIP: z.string().min(1).max(50),
+  publicKey: z.string().min(44).max(44).refine(Base64.isValid),
+  allowedIP: z.string().ip({ version: "v4" }),
 });
 
 export function AddPeer() {
@@ -77,12 +78,12 @@ export function AddPeer() {
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Add Peer</DialogTitle>
+          <DialogDescription>Add a peer to wg-hub.</DialogDescription>
+        </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <DialogHeader>
-              <DialogTitle>Add Peer</DialogTitle>
-              <DialogDescription>Add a new peer to wg-hub.</DialogDescription>
-            </DialogHeader>
             <div className="grid gap-4 py-4">
               <FormField
                 control={form.control}

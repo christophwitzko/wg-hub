@@ -176,13 +176,12 @@ The API will be served under the same endpoint the Webui is running (`hubAddress
 ```
 </details>
 
-### POST /api/peers
+### PUT /api/peers/:publicKey
 <details>
 <summary>Example requeset body</summary>
 
 ```json
 {
-  "publicKey": "h2/PAmEgoIRLYBDDTL3dZKAOaLEhu4270vlNWXFMSys=",
   "allowedIP": "1.2.3.4/32"
 }
 ```

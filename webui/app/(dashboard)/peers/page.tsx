@@ -7,7 +7,7 @@ import { PeersTable } from "@/app/(dashboard)/peers/table";
 
 export default function Peers() {
   const auth = useAuth();
-  const { data, error, isValidating } = usePeers(auth.token);
+  const { data, error } = usePeers(auth.token);
   return (
     <div>
       {error && (
@@ -17,7 +17,7 @@ export default function Peers() {
           <AlertDescription>{error.toString()}</AlertDescription>
         </Alert>
       )}
-      <PeersTable data={data!} isLoading={isValidating} />
+      <PeersTable data={data!} />
     </div>
   );
 }

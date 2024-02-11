@@ -21,14 +21,9 @@ import { Peer } from "@/lib/api";
 import { AddPeer } from "./add-peer";
 import { getColumns } from "./columns";
 import { ColumnToggle } from "./column-toggle";
+import { GeneratePeer } from "./generate-peer";
 
-export function PeersTable({
-  data,
-  isLoading,
-}: {
-  data: Peer[];
-  isLoading?: boolean;
-}) {
+export function PeersTable({ data }: { data: Peer[] }) {
   const columns = useMemo(() => getColumns(), []);
   const table = useReactTable({
     data,
@@ -45,11 +40,9 @@ export function PeersTable({
 
   return (
     <div className="w-full">
-      <div className="flex items-center py-4">
+      <div className="flex items-center py-4 gap-4">
         <AddPeer />
-        {isLoading ? (
-          <Loader2 className="ml-6 size-6 animate-spin text-primary/50" />
-        ) : null}
+        <GeneratePeer />
         <ColumnToggle table={table} />
       </div>
       <div className="rounded-md border">
