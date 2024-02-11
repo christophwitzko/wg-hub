@@ -2,7 +2,6 @@
 import { useAuth } from "@/lib/auth";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useConfig } from "@/lib/api";
 import { Code } from "@/components/code";
@@ -21,7 +20,7 @@ export default function Peers() {
         </Alert>
       )}
       <h1 className="text-2xl">wireguard-hub.yaml</h1>
-      <Code className="flex-grow" value={config} />
+      <Code className="flex-grow" lang="yaml" value={config} />
       <Button
         className="ml-auto"
         onClick={() => navigator.clipboard.writeText(config)}
