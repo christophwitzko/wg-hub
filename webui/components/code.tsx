@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { HighlighterCore } from "shiki";
 import { getHighlighterCore } from "shiki/core";
+import pMemoize from "p-memoize";
 
 import getWasm from "shiki/wasm";
 import ghDark from "shiki/themes/github-dark.mjs";
@@ -12,8 +13,10 @@ import yaml from "shiki/langs/yaml.mjs";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
 
+const getHighlighterCoreMemoized = pMemoize(getHighlighterCore);
+
 export function Code({
-  lang = "yaml",
+  lang,
   value,
   className,
 }: {
@@ -24,7 +27,7 @@ export function Code({
   const { resolvedTheme } = useTheme();
   const [highlighter, setHighlighter] = useState<HighlighterCore | null>(null);
   useEffect(() => {
-    getHighlighterCore({
+    getHighlighterCoreMemoized({
       themes: [ghDark, ghLight],
       langs: [yaml],
       loadWasm: getWasm,
