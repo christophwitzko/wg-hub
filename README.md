@@ -232,5 +232,19 @@ The API will be served under the same endpoint the Webui is running (`hubAddress
 ```
 </details>
 
+### GET /api/hub
+<details>
+<summary>Example response body</summary>
+
+```json
+{
+  "publicKey": "hub/+QaIRMomZNnjd6zZqZY+MiyH0R9aalxhhbnvPXE=",
+  "port": 9999,
+  "hubNetwork": "192.168.0.0/24",
+  "randomFreeIP": "192.168.0.130/32"
+}
+```
+</details>
+
 ## Legal
 [WireGuard](https://www.wireguard.com/) is a registered trademark of Jason A. Donenfeld.

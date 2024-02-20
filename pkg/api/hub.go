@@ -7,9 +7,10 @@ import (
 )
 
 type HubInfo struct {
-	PublicKey  string `json:"publicKey"`
-	Port       uint16 `json:"port"`
-	HubNetwork string `json:"hubNetwork"`
+	PublicKey    string `json:"publicKey"`
+	Port         uint16 `json:"port"`
+	HubNetwork   string `json:"hubNetwork"`
+	RandomFreeIP string `json:"randomFreeIP"`
 }
 
 func (a *API) getHubInfo(w http.ResponseWriter, r *http.Request) {
@@ -19,15 +20,16 @@ func (a *API) getHubInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hubNet, err := config.FindMinimalNetwork(peers.GetAllowedIPRanges())
+	randomIP, hubNet, err := config.GenerateRandomIP(peers.GetAllowedIPRanges())
 	if err != nil {
 		a.sendError(w, "failed to find hub network", http.StatusInternalServerError)
 		return
 	}
 	hubInfo := HubInfo{
-		PublicKey:  a.cfg.PrivateKey.PublicKey().String(),
-		Port:       a.cfg.Port,
-		HubNetwork: hubNet,
+		PublicKey:    a.cfg.PrivateKey.PublicKey().String(),
+		Port:         a.cfg.Port,
+		HubNetwork:   hubNet,
+		RandomFreeIP: randomIP,
 	}
 	a.writeJSON(w, hubInfo)
 }
