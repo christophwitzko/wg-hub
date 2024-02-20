@@ -118,6 +118,14 @@ func generateRandomIP(rnd *rand.Rand, minNet *net.IPNet, ipRanges []string) (str
 	return "", minNet.String(), nil
 }
 
+func FindMinimalNetwork(ipRanges []string) (string, error) {
+	minNet, err := findMinimalIPNet(ipRanges)
+	if err != nil {
+		return "", err
+	}
+	return minNet.String(), nil
+}
+
 func GenerateRandomIP(ipRanges []string) (string, string, error) {
 	globalRandMutex.Lock()
 	defer globalRandMutex.Unlock()

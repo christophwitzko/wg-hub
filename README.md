@@ -176,13 +176,13 @@ The API will be served under the same endpoint the Webui is running (`hubAddress
 ```
 </details>
 
-### PUT /api/peers/:publicKey
+### POST /api/peers
 <details>
 <summary>Example requeset body</summary>
 
 ```json
 {
-  "allowedIP": "1.2.3.4/32"
+  "allowedIP": "192.168.0.55/32"
 }
 ```
 </details>
@@ -191,7 +191,32 @@ The API will be served under the same endpoint the Webui is running (`hubAddress
 
 ```json
 {
-  "status": "ok"
+  "privateKey": "KEta3N3FXLlSlY7o2C22ty2nXnw+FJ44zyCFXxznrHU=",
+  "publicKey": "ylD5KC3idzgxdA+LnAW5QclS5tg/vilMbqn9Y6oKpwQ=",
+  "allowedIP": "192.168.0.55/32",
+  "hubNetwork": "192.168.0.0/24"
+}
+```
+</details>
+
+
+### PUT /api/peers/:publicKey
+<details>
+<summary>Example requeset body</summary>
+
+```json
+{
+  "allowedIP": "192.168.0.55/32"
+}
+```
+</details>
+<details>
+<summary>Example response body</summary>
+
+```json
+{
+  "allowedIP": "192.168.0.55/32",
+  "hubNetwork": "192.168.0.0/24"
 }
 ```
 </details>
