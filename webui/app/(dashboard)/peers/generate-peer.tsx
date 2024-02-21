@@ -44,6 +44,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import QRCode from "qrcode";
 
 const generatePeerFormSchema = z.object({
   allowedIP: z.string().ip({ version: "v4" }),
@@ -125,6 +126,12 @@ export function GeneratePeer() {
     () => generateConfig(hub.data, generatedPeer),
     [hub.data, generatedPeer],
   );
+
+  useEffect(() => {
+    if (showQR && canvasRef.current) {
+      QRCode.toCanvas(canvasRef.current, peerConfig, {}).catch(console.error);
+    }
+  }, [showQR, peerConfig]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

@@ -27,6 +27,7 @@
     "next-themes": "^0.2.1",
     "p-memoize": "^7.1.1",
     "pretty-bytes": "^6.1.1",
+    "qrcode": "^1.5.3",
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.50.0",
@@ -40,6 +41,7 @@
   },
   "devDependencies": {
     "@types/node": "^20",
+    "@types/qrcode": "^1.5.5",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",
