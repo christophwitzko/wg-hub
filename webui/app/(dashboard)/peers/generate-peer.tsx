@@ -1,7 +1,13 @@
 "use client";
 
-import { AlertCircle, Plus, Shuffle } from "lucide-react";
-import { useCallback, useEffect, useState, MouseEvent } from "react";
+import {
+  AlertCircle,
+  ClipboardCopy,
+  Plus,
+  QrCode,
+  Shuffle,
+} from "lucide-react";
+import { useCallback, useEffect, useState, MouseEvent, useMemo } from "react";
 
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
@@ -13,8 +19,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose,
 } from "@/components/ui/dialog";
-import { GeneratedPeer, generatePeer, useHub } from "@/lib/api";
+import { GeneratedPeer, generatePeer, Hub, useHub } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import {
   Form,
@@ -28,10 +35,25 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Code } from "@/components/code";
 
 const generatePeerFormSchema = z.object({
   allowedIP: z.string().ip({ version: "v4" }),
 });
+
+function generateConfig(hub?: Hub | null, peer?: GeneratedPeer | null) {
+  if (!hub || !peer) return "";
+  return `[Interface]
+Address = ${peer.allowedIP}
+PrivateKey = ${peer.privateKey}
+
+[Peer]
+PublicKey = ${hub.publicKey}
+AllowedIPs = ${hub.hubNetwork}
+Endpoint = 127.0.0.1:${hub.port} # TODO
+PersistentKeepalive = 25
+`;
+}
 
 export function GeneratePeer() {
   const [open, setOpen] = useState(false);
@@ -87,6 +109,11 @@ export function GeneratePeer() {
     [form, hub],
   );
 
+  const peerConfig = useMemo(
+    () => generateConfig(hub.data, generatedPeer),
+    [hub.data, generatedPeer],
+  );
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -94,7 +121,7 @@ export function GeneratePeer() {
           Generate New Peer <Plus className="ml-2 size-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="max-w-fit">
         <DialogHeader>
           <DialogTitle>Generate New Peer</DialogTitle>
           <DialogDescription>
@@ -102,10 +129,20 @@ export function GeneratePeer() {
           </DialogDescription>
         </DialogHeader>
         {generatedPeer ? (
-          <div>
-            <div>{JSON.stringify(generatedPeer, null, 2)}</div>
+          <div className="flex gap-2 flex-col">
+            <Code lang="ini" value={peerConfig}></Code>
             <DialogFooter>
-              <Button onClick={() => setOpen(false)}>Close</Button>
+              <Button
+                variant="secondary"
+                onClick={() => navigator.clipboard.writeText(peerConfig)}
+              >
+                <QrCode className="mr-2 size-4" />
+                Show QR Code
+              </Button>
+              <Button onClick={() => navigator.clipboard.writeText(peerConfig)}>
+                <ClipboardCopy className="mr-2 size-4" />
+                Copy to Clipboard
+              </Button>
             </DialogFooter>
           </div>
         ) : (
@@ -145,7 +182,7 @@ export function GeneratePeer() {
               </div>
               <DialogFooter>
                 <Button type="submit" disabled={isLoading}>
-                  Add
+                  Generate
                 </Button>
               </DialogFooter>
             </form>

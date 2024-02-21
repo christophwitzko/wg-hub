@@ -9,6 +9,7 @@ import getWasm from "shiki/wasm";
 import ghDark from "shiki/themes/github-dark.mjs";
 import ghLight from "shiki/themes/github-light.mjs";
 import yaml from "shiki/langs/yaml.mjs";
+import ini from "shiki/langs/ini.mjs";
 
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
@@ -20,7 +21,7 @@ export function Code({
   value,
   className,
 }: {
-  lang: "yaml";
+  lang: "yaml" | "ini";
   value: string;
   className?: string;
 }) {
@@ -29,7 +30,7 @@ export function Code({
   useEffect(() => {
     getHighlighterCoreMemoized({
       themes: [ghDark, ghLight],
-      langs: [yaml],
+      langs: [yaml, ini],
       loadWasm: getWasm,
     }).then((highlighter) => {
       setHighlighter(highlighter);
