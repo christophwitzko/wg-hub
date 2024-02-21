@@ -29,6 +29,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { addPeer } from "@/lib/api";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { toast } from "sonner";
 
 const addPeerFormSchema = z.object({
   publicKey: z.string().min(44).max(44).refine(Base64.isValid),
@@ -54,6 +55,7 @@ export function AddPeer() {
     addPeer(auth.token, values)
       .then(() => {
         setOpen(false);
+        toast("Peer added");
       })
       .catch((error) => {
         setError(error.message);

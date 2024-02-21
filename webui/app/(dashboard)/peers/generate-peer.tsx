@@ -3,11 +3,19 @@
 import {
   AlertCircle,
   ClipboardCopy,
+  FileCog,
   Plus,
   QrCode,
   Shuffle,
 } from "lucide-react";
-import { useCallback, useEffect, useState, MouseEvent, useMemo } from "react";
+import {
+  useCallback,
+  useEffect,
+  useState,
+  MouseEvent,
+  useMemo,
+  useRef,
+} from "react";
 
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
@@ -19,7 +27,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogClose,
 } from "@/components/ui/dialog";
 import { GeneratedPeer, generatePeer, Hub, useHub } from "@/lib/api";
 import { Input } from "@/components/ui/input";
@@ -32,10 +39,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Code } from "@/components/code";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Code } from "@/components/code";
+import { toast } from "sonner";
 
 const generatePeerFormSchema = z.object({
   allowedIP: z.string().ip({ version: "v4" }),
@@ -62,6 +70,8 @@ export function GeneratePeer() {
   const [generatedPeer, setGeneratedPeer] = useState<GeneratedPeer | null>(
     null,
   );
+  const [showQR, setShowQR] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const auth = useAuth();
   const hub = useHub(auth.token);
 
@@ -77,6 +87,7 @@ export function GeneratePeer() {
     generatePeer(auth.token, values)
       .then((newPeer) => {
         setGeneratedPeer(newPeer);
+        toast("Peer generated");
       })
       .catch((error) => {
         setError(error.message);
@@ -90,6 +101,7 @@ export function GeneratePeer() {
     if (open) {
       form.reset();
       setGeneratedPeer(null);
+      setShowQR(false);
       setError("");
     }
   }, [form, open]);
@@ -130,19 +142,34 @@ export function GeneratePeer() {
         </DialogHeader>
         {generatedPeer ? (
           <div className="flex gap-2 flex-col">
-            <Code lang="ini" value={peerConfig}></Code>
+            {showQR ? (
+              <canvas ref={canvasRef} />
+            ) : (
+              <Code lang="ini" value={peerConfig}></Code>
+            )}
             <DialogFooter>
               <Button
                 variant="secondary"
-                onClick={() => navigator.clipboard.writeText(peerConfig)}
+                onClick={() => setShowQR((prev) => !prev)}
               >
-                <QrCode className="mr-2 size-4" />
-                Show QR Code
+                {showQR ? (
+                  <FileCog className="mr-2 size-4" />
+                ) : (
+                  <QrCode className="mr-2 size-4" />
+                )}
+                {showQR ? "Show Config" : "Show QR Code"}
               </Button>
-              <Button onClick={() => navigator.clipboard.writeText(peerConfig)}>
-                <ClipboardCopy className="mr-2 size-4" />
-                Copy to Clipboard
-              </Button>
+              {!showQR && (
+                <Button
+                  onClick={() => {
+                    navigator.clipboard.writeText(peerConfig);
+                    toast("Copied to clipboard");
+                  }}
+                >
+                  <ClipboardCopy className="mr-2 size-4" />
+                  Copy to Clipboard
+                </Button>
+              )}
             </DialogFooter>
           </div>
         ) : (
