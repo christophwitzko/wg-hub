@@ -75,11 +75,17 @@ export function useConfig(token: string) {
   });
 }
 
+export type AddedPeer = {
+  allowedIP: string;
+  hubNetwork: string;
+};
 export async function addPeer(
   token: string,
   peer: { publicKey: string; allowedIP: string },
-): Promise<void> {
-  await fetchAPI("PUT", `peers/${peer.publicKey}`, token, peer);
+): Promise<AddedPeer> {
+  return await fetchAPI("PUT", `peers/${peer.publicKey}`, token, {
+    allowedIP: peer.allowedIP,
+  });
 }
 
 export async function removePeer(
@@ -87,4 +93,32 @@ export async function removePeer(
   publicKey: string,
 ): Promise<void> {
   await fetchAPI("DELETE", `peers/${publicKey}`, token);
+}
+
+export type Hub = {
+  publicKey: string;
+  port: number;
+  hubNetwork: string;
+  randomFreeIP: string;
+};
+
+export function useHub(token: string) {
+  return useSWR<Hub>("hub", () => fetchAPI("GET", "hub", token), {
+    refreshInterval: 5000,
+  });
+}
+
+export type GeneratedPeer = {
+  privateKey: string;
+  publicKey: string;
+  allowedIP: string;
+  hubNetwork: string;
+};
+export async function generatePeer(
+  token: string,
+  peer: { allowedIP: string },
+): Promise<GeneratedPeer> {
+  return await fetchAPI("POST", `peers`, token, {
+    allowedIP: peer.allowedIP,
+  });
 }

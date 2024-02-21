@@ -77,7 +77,7 @@ export function AddPeer() {
           Add Peer <Plus className="ml-2 size-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Add Peer</DialogTitle>
           <DialogDescription>Add a peer to wg-hub.</DialogDescription>
@@ -92,7 +92,7 @@ export function AddPeer() {
                   <FormItem>
                     <FormLabel>Public Key</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} data-1p-ignore />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -105,7 +105,7 @@ export function AddPeer() {
                   <FormItem>
                     <FormLabel>Allowed IP</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} data-1p-ignore />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
