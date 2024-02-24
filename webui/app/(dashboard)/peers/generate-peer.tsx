@@ -4,6 +4,7 @@ import {
   AlertCircle,
   ClipboardCopy,
   FileCog,
+  FileDown,
   Plus,
   QrCode,
   Shuffle,
@@ -127,6 +128,17 @@ export function GeneratePeer() {
     [hub.data, generatedPeer],
   );
 
+  const downloadConfig = useCallback(() => {
+    const blob = new Blob([peerConfig], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "hub.conf";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }, [peerConfig]);
+
   useEffect(() => {
     if (showQR && canvasRef.current) {
       QRCode.toCanvas(canvasRef.current, peerConfig, {}).catch(console.error);
@@ -149,11 +161,21 @@ export function GeneratePeer() {
         </DialogHeader>
         {generatedPeer ? (
           <div className="flex gap-2 flex-col">
+            <span>Setup the new peer using the following configuration:</span>
             {showQR ? (
-              <canvas ref={canvasRef} />
+              <div className="flex flex-col items-center">
+                <canvas ref={canvasRef} />
+              </div>
             ) : (
               <Code lang="ini" value={peerConfig}></Code>
             )}
+            <Alert variant="destructive">
+              <AlertCircle className="size-4" />
+              <AlertTitle>Attention</AlertTitle>
+              <AlertDescription>
+                The private key is only shown once. Make sure to save it.
+              </AlertDescription>
+            </Alert>
             <DialogFooter>
               <Button
                 variant="secondary"
@@ -177,6 +199,10 @@ export function GeneratePeer() {
                   Copy to Clipboard
                 </Button>
               )}
+              <Button onClick={downloadConfig}>
+                <FileDown className="mr-2 size-4" />
+                Download Config
+              </Button>
             </DialogFooter>
           </div>
         ) : (
@@ -189,7 +215,7 @@ export function GeneratePeer() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Allowed IP</FormLabel>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 min-w-[300px]">
                         <FormControl>
                           <Input {...field} data-1p-ignore />
                         </FormControl>
