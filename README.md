@@ -86,6 +86,8 @@ webuiAdminPasswordHash: $2a$14$hTHK6KAynSb7tWknK4CvUum2eFVHIDSzbOuOlgDeP4bQW91uj
 ```
 The Webui will be running on the `hubAddress` and port 80 (e.g. http://192.168.0.254).
 
+![](./docs/webui.png)
+
 ## API
 
 The API will be served under the same endpoint the Webui is running (`hubAddress`). All API request (except `POST /api/auth`) require a valid `Authorization` header with the value `Bearer <token>`. The token can be obtained by sending a `POST /api/auth` request with the `username` and `password` in the request body.
