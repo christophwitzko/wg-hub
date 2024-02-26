@@ -3,6 +3,7 @@ module github.com/christophwitzko/wg-hub
 go 1.21
 
 require (
+	github.com/glendc/go-external-ip v0.1.0
 	github.com/go-chi/chi/v5 v5.0.11
 	github.com/go-chi/jwtauth/v5 v5.3.0
 	github.com/sirupsen/logrus v1.9.3

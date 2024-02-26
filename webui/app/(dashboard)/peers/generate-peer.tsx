@@ -60,7 +60,7 @@ PrivateKey = ${peer.privateKey}
 [Peer]
 PublicKey = ${hub.publicKey}
 AllowedIPs = ${hub.hubNetwork}
-Endpoint = 127.0.0.1:${hub.port} # TODO
+Endpoint = ${hub.externalIP}:${hub.port}
 PersistentKeepalive = 25
 `;
 }

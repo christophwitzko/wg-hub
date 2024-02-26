@@ -30,6 +30,7 @@ func (a *API) getConfig(w http.ResponseWriter, _ *http.Request) {
 	cfgData, err := yaml.Marshal(config.Config{
 		Port:                   a.cfg.Port,
 		BindAddress:            a.cfg.BindAddress,
+		ExternalAddress:        a.cfg.ExternalAddress,
 		LogLevel:               a.cfg.LogLevel,
 		HubAddress:             a.cfg.HubAddress,
 		DebugServer:            a.cfg.DebugServer,

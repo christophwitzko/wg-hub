@@ -7,8 +7,10 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/christophwitzko/wg-hub/pkg/ipc"
+	externalip "github.com/glendc/go-external-ip"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -92,6 +94,7 @@ func SetFlags(cmd *cobra.Command) {
 	cmd.PersistentFlags().Bool("webui", false, "start on <hubIP>:80 the webui and api")
 	cmd.PersistentFlags().String("webui-jwt-secret", "", "secret for JWT authentication")
 	cmd.PersistentFlags().String("webui-admin-password-hash", "", "bcrypt hash of the admin password")
+	cmd.PersistentFlags().String("external-address", "auto", "external address of the hub (used for configuration generation)")
 	cmd.PersistentFlags().SortFlags = true
 
 	Must(viper.BindPFlag("privateKey", cmd.PersistentFlags().Lookup("private-key")))
@@ -112,6 +115,8 @@ func SetFlags(cmd *cobra.Command) {
 	viper.MustBindEnv("webui-jwt-secret", "WEBUI_JWT_SECRET")
 	Must(viper.BindPFlag("webuiAdminPasswordHash", cmd.PersistentFlags().Lookup("webui-admin-password-hash")))
 	viper.MustBindEnv("webui-admin-password-hash", "WEBUI_ADMIN_PASSWORD_HASH")
+	Must(viper.BindPFlag("externalAddress", cmd.PersistentFlags().Lookup("external-address")))
+	viper.MustBindEnv("externalAddress", "EXTERNAL_ADDRESS")
 }
 
 type Config struct {
@@ -121,11 +126,14 @@ type Config struct {
 	BindAddress            string      `yaml:"bindAddress,omitempty"`
 	LogLevel               string      `yaml:"logLevel"`
 	HubAddress             string      `yaml:"hubAddress,omitempty"`
+	ExternalAddress        string      `yaml:"externalAddress,omitempty"`
 	DebugServer            bool        `yaml:"debugServer,omitempty"`
 	Webui                  bool        `yaml:"webui,omitempty"`
 	WebuiJWTSecret         string      `yaml:"webuiJWTSecret,omitempty"`
 	WebuiAdminPasswordHash string      `yaml:"webuiAdminPasswordHash,omitempty"`
 	Peers                  []*Peer     `yaml:"peers"`
+	cachedExternalAddress  string      `yaml:"-"`
+	eipConsensus           *externalip.Consensus
 }
 
 func (c *Config) GetPort() string {
@@ -142,6 +150,22 @@ func (c *Config) ResolvedBindAddr() string {
 
 func (c *Config) GetHubAddress() string {
 	return c.HubAddress + "/32"
+}
+
+func (c *Config) GetExternalAddress() string {
+	if c.cachedExternalAddress != "" {
+		return c.cachedExternalAddress
+	}
+	if c.ExternalAddress == "auto" {
+		eip, err := c.eipConsensus.ExternalIP()
+		if err != nil {
+			return ""
+		}
+		eipStr := eip.String()
+		c.cachedExternalAddress = eipStr
+		return eipStr
+	}
+	return c.ExternalAddress
 }
 
 //gocyclo:ignore
@@ -201,6 +225,7 @@ func ParseConfig(log *logrus.Logger, cmd *cobra.Command) (*Config, error) {
 		PrivateKey:             wgPrivateKey,
 		Port:                   port,
 		BindAddress:            bindAddr,
+		ExternalAddress:        viper.GetString("externalAddress"),
 		LogLevel:               viper.GetString("logLevel"),
 		HubAddress:             viper.GetString("hubAddress"),
 		DebugServer:            viper.GetBool("debugServer"),
@@ -208,6 +233,7 @@ func ParseConfig(log *logrus.Logger, cmd *cobra.Command) (*Config, error) {
 		WebuiJWTSecret:         viper.GetString("webuiJWTSecret"),
 		WebuiAdminPasswordHash: viper.GetString("webuiAdminPasswordHash"),
 		Peers:                  peers,
+		eipConsensus:           externalip.DefaultConsensus(&externalip.ConsensusConfig{Timeout: 3 * time.Second}, nil),
 	}
 
 	for _, a := range peers {

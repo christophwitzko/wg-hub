@@ -11,6 +11,7 @@ type HubInfo struct {
 	Port         uint16 `json:"port"`
 	HubNetwork   string `json:"hubNetwork"`
 	RandomFreeIP string `json:"randomFreeIP"`
+	ExternalIP   string `json:"externalIP"`
 }
 
 func (a *API) getHubInfo(w http.ResponseWriter, r *http.Request) {
@@ -30,6 +31,7 @@ func (a *API) getHubInfo(w http.ResponseWriter, r *http.Request) {
 		Port:         a.cfg.Port,
 		HubNetwork:   hubNet,
 		RandomFreeIP: randomIP,
+		ExternalIP:   a.cfg.GetExternalAddress(),
 	}
 	a.writeJSON(w, hubInfo)
 }

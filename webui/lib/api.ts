@@ -100,6 +100,7 @@ export type Hub = {
   port: number;
   hubNetwork: string;
   randomFreeIP: string;
+  externalIP: string;
 };
 
 export function useHub(token: string) {
